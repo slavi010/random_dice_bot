@@ -66,6 +66,8 @@ class DiceColorEnum(Enum):
     THORN = [(0, 0, 0)]
     CRACK = [(0, 0, 0)]
     # CRITICAL = [(0, 0, 0)]
-    ENERGY = [(0, 0, 0)]
-    SACRIFICIAL = [(0, 0, 0)]
+    ENERGY = [(205, 234, 27)]
+    SACRIFICIAL = [(235, 34, 60)]
     BOW = [(0, 0, 0)]
+
+    JOKER = []

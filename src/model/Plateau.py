@@ -12,13 +12,14 @@ from PIL import Image, ImageGrab
 from ahk import AHK
 
 from src.model.Dice import Dice
-from src.model.DiceEnum import DiceColorEnum
+from src.model.DiceEnum import DiceColorEnum, DiceEnum
 from src.model.Utils import same_color, same_color_hsv
 
 
 class Plateau:
     def __init__(self, ahk: AHK):
         self.ahk = ahk
+        self.feature = None
 
         # get position premier dé en haut à gauche
         x_1, y_1, _, _ = get_next_click_mouse()
@@ -58,14 +59,20 @@ class Plateau:
                 case.dice = None
 
                 # assigne un dé à la case si les couleurs correspondes
-                if not same_color(avg_color, (219, 219, 219), offset=1) and \
-                        not same_color(avg_color, (110, 0, 63), offset=1):  # couleur du plateau de base ?
-                    nb_dot, color_dot = case.get_dot_dice(image)
-                    print(str(nb_dot) + " " + str(color_dot))
-                    for name, member in DiceColorEnum.__members__.items():
-                        for color in member.value:
-                            if same_color(color, color_dot):
-                                case.dice = Dice(member, nb_dot)
+                if not same_color(avg_color, (220, 220, 220), offset=3) and \
+                        not same_color(avg_color, (110, 0, 63), offset=2):  # couleur du plateau de base
+
+                    if case.is_joker_dice(image):
+                        nb_dot, color_dot = case.get_dot_dice(image, True)
+                        print(str(nb_dot) + " " + str(color_dot))
+                        case.dice = Dice(DiceColorEnum.JOKER, nb_dot)
+                    else:
+                        nb_dot, color_dot = case.get_dot_dice(image, False)
+                        print(str(nb_dot) + " " + str(color_dot))
+                        for name, member in DiceColorEnum.__members__.items():
+                            for color in member.value:
+                                if same_color(color, color_dot):
+                                    case.dice = Dice(member, nb_dot)
 
                 print(case.__str__())
         print("#######################")
@@ -103,10 +110,11 @@ class Plateau:
                 if self.cases[y1][x1].dice is not None:
                     for y2 in range(3):
                         for x2 in range(5):
-
                             if self.cases[y2][x2].dice is not None and \
                                     self.cases[y1][x1].dice.dot == self.cases[y2][x2].dice.dot and \
-                                    self.cases[y1][x1].dice.type_dice == self.cases[y2][x2].dice.type_dice and \
+                                    (self.cases[y1][x1].dice.type_dice == self.cases[y2][x2].dice.type_dice or
+                                     self.cases[y1][x1].dice.type_dice == DiceColorEnum.JOKER or
+                                     self.cases[y2][x2].dice.type_dice == DiceColorEnum.JOKER) and \
                                     (self.cases[y1][x1].x != self.cases[y2][x2].x or
                                      self.cases[y1][x1].y != self.cases[y2][x2].y):
                                 fusions.append((self.cases[y1][x1], self.cases[y2][x2]))
@@ -122,6 +130,7 @@ class Plateau:
                last_case.y + last_case.height)
         # print('box ' + str(box))
         img = image_raw.copy()[box[1]:box[3], box[0]:box[2]]
+        cv2.waitKey(1)
 
         for case_row in self.cases:
             for case in case_row:
@@ -133,8 +142,16 @@ class Plateau:
                 dots_case_coord = case.coord_all_dots()
                 for dot in dots_case_coord:
                     img[dot[1] - box[1]][dot[0] - box[0]] = [0, 0, 255]
+                img[case.y + int(case.height * 10 / 50) - box[1]][case.x - box[0]] = [0, 0, 0]
 
         cv2.imshow("show", img)
+
+    def is_sacrifice_ready_to_merge(self, fusions):
+        for fusion in fusions:
+            if fusion[0].dice.type_dice == DiceColorEnum.SACRIFICIAL and \
+                    fusion[1].dice.type_dice == DiceColorEnum.SACRIFICIAL:
+                self.do_fusion(fusion[0], fusion[1])
+                fusions.remove(fusion)
 
 
 def pil_to_cv2(image_pil):

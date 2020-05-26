@@ -2,7 +2,7 @@ import cv2 as cv2
 import numpy as np
 
 from src.model.DiceEnum import DiceColorEnum
-from src.model.Utils import same_color
+from src.model.Utils import same_color, same_color_offset_rgb
 
 
 class Case:
@@ -41,7 +41,12 @@ class Case:
         avg_color = np.average(avg_color_per_row, axis=0)
         return avg_color
 
-    def get_dot_dice(self, image):
+    def is_joker_dice(self, image):
+        color = image[self.y + int(self.height*10/50)][self.x]
+        # print('joker color : ' + str(color))
+        return same_color_offset_rgb(color, (150, 232, 216), offset_rgb=(50, 15, 30))
+
+    def get_dot_dice(self, image, is_joker: bool):
         #
         # *   * (0     1)
         # * * * (2  3  4)
@@ -54,14 +59,14 @@ class Case:
         # 1*
         tmp_dots = dots_color.copy()
         tmp_dots.pop(3)
-        if not is_dots(tmp_dots):
+        if not is_dots(tmp_dots, is_joker):
             return 1, dots_color[3]
 
         # 2*
         tmp_dots = dots_color.copy()
         tmp_dots.pop(1)
         tmp_dots.pop(5)
-        if is_dots([dots_color[1], dots_color[5]]):
+        if is_dots(tmp_dots, is_joker):
             return 2, dots_color[1]
 
         # 3*
@@ -69,7 +74,7 @@ class Case:
         tmp_dots.pop(1)
         tmp_dots.pop(3 - 1)
         tmp_dots.pop(5 - 2)
-        if not is_dots(tmp_dots):
+        if not is_dots(tmp_dots, is_joker):
             return 3, dots_color[3]
 
         # 4*
@@ -78,7 +83,7 @@ class Case:
         tmp_dots.pop(1 - 1)
         tmp_dots.pop(5 - 2)
         tmp_dots.pop(6 - 3)
-        if not is_dots(tmp_dots):
+        if not is_dots(tmp_dots, is_joker):
             return 4, dots_color[1]
 
         # 5*
@@ -88,7 +93,7 @@ class Case:
         tmp_dots.pop(3 - 2)
         tmp_dots.pop(5 - 3)
         tmp_dots.pop(6 - 4)
-        if not is_dots(tmp_dots):
+        if not is_dots(tmp_dots, is_joker):
             return 5, dots_color[3]
 
         # TODO : 7
@@ -110,10 +115,16 @@ class Case:
         return '({0} {1}) {2}'.format(self.x, self.y, self.dice)
 
 
-def is_dots(dots_color):
+def is_dots(dots_color, is_joker: bool):
     for dot_idx in range(len(dots_color)):
         for name, member in DiceColorEnum.__members__.items():
             for color in member.value:
                 if same_color(dots_color[dot_idx], color):
                     return True
+        if is_joker:
+            if not (dots_color[dot_idx][0] > 250 and dots_color[dot_idx][1] > 250 and dots_color[dot_idx][2] > 250):
+                # pas blanc
+                for j in range(dot_idx+1, len(dots_color)):
+                    if same_color(dots_color[dot_idx], dots_color[j]):
+                        return True
     return False
