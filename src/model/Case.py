@@ -56,50 +56,77 @@ class Case:
         y_offset = int(self.height / 5)
         dots_color = [image[coord[1]][coord[0]] for coord in self.coord_all_dots()]
 
-        # 1*
-        tmp_dots = dots_color.copy()
-        tmp_dots.pop(3)
-        if not is_dots(tmp_dots, is_joker):
-            return 1, dots_color[3]
+        if not is_joker:
+            # 1*
+            tmp_dots = dots_color.copy()
+            tmp_dots.pop(3)
+            if not is_dots_dice(tmp_dots):
+                return 1, dots_color[3]
 
-        # 2*
-        tmp_dots = dots_color.copy()
-        tmp_dots.pop(1)
-        tmp_dots.pop(5)
-        if is_dots(tmp_dots, is_joker):
-            return 2, dots_color[1]
+            # 2*
+            tmp_dots = dots_color.copy()
+            tmp_dots.pop(1)
+            tmp_dots.pop(5)
+            if is_dots_dice(tmp_dots):
+                return 2, dots_color[1]
 
-        # 3*
-        tmp_dots = dots_color.copy()
-        tmp_dots.pop(1)
-        tmp_dots.pop(3 - 1)
-        tmp_dots.pop(5 - 2)
-        if not is_dots(tmp_dots, is_joker):
-            return 3, dots_color[3]
+            # 3*
+            tmp_dots = dots_color.copy()
+            tmp_dots.pop(1)
+            tmp_dots.pop(3 - 1)
+            tmp_dots.pop(5 - 2)
+            if not is_dots_dice(tmp_dots):
+                return 3, dots_color[3]
 
-        # 4*
-        tmp_dots = dots_color.copy()
-        tmp_dots.pop(0)
-        tmp_dots.pop(1 - 1)
-        tmp_dots.pop(5 - 2)
-        tmp_dots.pop(6 - 3)
-        if not is_dots(tmp_dots, is_joker):
-            return 4, dots_color[1]
+            # 4*
+            tmp_dots = dots_color.copy()
+            tmp_dots.pop(0)
+            tmp_dots.pop(1 - 1)
+            tmp_dots.pop(5 - 2)
+            tmp_dots.pop(6 - 3)
+            if not is_dots_dice(tmp_dots):
+                return 4, dots_color[1]
 
-        # 5*
-        tmp_dots = dots_color.copy()
-        tmp_dots.pop(0)
-        tmp_dots.pop(1 - 1)
-        tmp_dots.pop(3 - 2)
-        tmp_dots.pop(5 - 3)
-        tmp_dots.pop(6 - 4)
-        if not is_dots(tmp_dots, is_joker):
-            return 5, dots_color[3]
+            # 5*
+            tmp_dots = dots_color.copy()
+            tmp_dots.pop(0)
+            tmp_dots.pop(1 - 1)
+            tmp_dots.pop(3 - 2)
+            tmp_dots.pop(5 - 3)
+            tmp_dots.pop(6 - 4)
+            if not is_dots_dice(tmp_dots):
+                return 5, dots_color[3]
 
-        # TODO : 7
+            # TODO : 7
 
-        return 6, dots_color[1]
-    
+            return 6, dots_color[1]
+        else:
+            # 1*
+            tmp_dots = dots_color.copy()
+            tmp_dots.pop(3)
+            if not is_dots_same_color(tmp_dots):
+                return 1, None
+
+            # 2*
+            if not is_dots_same_color([dots_color[0], dots_color[1], dots_color[3]]):
+                return 2, None
+
+            # 3*
+            if not is_dots_same_color([dots_color[0], dots_color[1]]):
+                return 3, None
+
+            # 4*
+            if not is_dots_same_color([dots_color[1], dots_color[2], dots_color[3]]):
+                return 4, None
+
+            # 5*
+            if not is_dots_same_color([dots_color[1], dots_color[2]]):
+                return 5, None
+
+            # TODO : 7
+
+            return 6, None
+
     def coord_all_dots(self):
         x_offset = int(self.width / 5)
         y_offset = int(self.height / 5)
@@ -115,16 +142,21 @@ class Case:
         return '({0} {1}) {2}'.format(self.x, self.y, self.dice)
 
 
-def is_dots(dots_color, is_joker: bool):
+def is_dots_dice(dots_color):
     for dot_idx in range(len(dots_color)):
         for name, member in DiceColorEnum.__members__.items():
             for color in member.value:
                 if same_color(dots_color[dot_idx], color):
                     return True
-        if is_joker:
-            if not (dots_color[dot_idx][0] > 250 and dots_color[dot_idx][1] > 250 and dots_color[dot_idx][2] > 250):
-                # pas blanc
-                for j in range(dot_idx+1, len(dots_color)):
-                    if same_color(dots_color[dot_idx], dots_color[j]):
-                        return True
+
+    return False
+
+def is_dots_same_color(dots_color):
+    for dot_idx in range(len(dots_color)):
+        if not (dots_color[dot_idx][0] > 250 and dots_color[dot_idx][1] > 250 and dots_color[dot_idx][2] > 250):
+            # pas blanc
+            for j in range(dot_idx+1, len(dots_color)):
+                if same_color(dots_color[dot_idx], dots_color[j]):
+                    return True
+
     return False
