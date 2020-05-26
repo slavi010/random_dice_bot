@@ -1,6 +1,9 @@
 import cv2 as cv2
 import numpy as np
 
+from src.model.DiceEnum import DiceColorEnum
+from src.model.Utils import same_color
+
 
 class Case:
     def __init__(self, x: int, y: int, width: int, height: int):
@@ -13,8 +16,8 @@ class Case:
         self.y = y
 
         # with and height af a dice
-        self.width = 50
-        self.height = 50
+        self.width = width
+        self.height = height
 
         self.dice = None
 
@@ -31,9 +34,86 @@ class Case:
         :return r, g, b"""
         box = self.get_box_coord()
 
-        avg_color_per_row = np.average(img[box[1]:box[3], box[0]:box[2]], axis=0)
+        avg_color_per_row = np.average(
+            img[box[1]:box[3], box[0]:box[2]],
+            axis=0,
+        )
         avg_color = np.average(avg_color_per_row, axis=0)
         return avg_color
 
+    def get_dot_dice(self, image):
+        #
+        # *   * (0     1)
+        # * * * (2  3  4)
+        # *   * (5     6)
+        #
+        x_offset = int(self.width / 5)
+        y_offset = int(self.height / 5)
+        dots_color = [image[coord[1]][coord[0]] for coord in self.coord_all_dots()]
+
+        # 1*
+        tmp_dots = dots_color.copy()
+        tmp_dots.pop(3)
+        if not is_dots(tmp_dots):
+            return 1, dots_color[3]
+
+        # 2*
+        tmp_dots = dots_color.copy()
+        tmp_dots.pop(1)
+        tmp_dots.pop(5)
+        if is_dots([dots_color[1], dots_color[5]]):
+            return 2, dots_color[1]
+
+        # 3*
+        tmp_dots = dots_color.copy()
+        tmp_dots.pop(1)
+        tmp_dots.pop(3 - 1)
+        tmp_dots.pop(5 - 2)
+        if not is_dots(tmp_dots):
+            return 3, dots_color[3]
+
+        # 4*
+        tmp_dots = dots_color.copy()
+        tmp_dots.pop(0)
+        tmp_dots.pop(1 - 1)
+        tmp_dots.pop(5 - 2)
+        tmp_dots.pop(6 - 3)
+        if not is_dots(tmp_dots):
+            return 4, dots_color[1]
+
+        # 5*
+        tmp_dots = dots_color.copy()
+        tmp_dots.pop(0)
+        tmp_dots.pop(1 - 1)
+        tmp_dots.pop(3 - 2)
+        tmp_dots.pop(5 - 3)
+        tmp_dots.pop(6 - 4)
+        if not is_dots(tmp_dots):
+            return 5, dots_color[3]
+
+        # TODO : 7
+
+        return 6, dots_color[1]
+    
+    def coord_all_dots(self):
+        x_offset = int(self.width / 5)
+        y_offset = int(self.height / 5)
+        return [(self.x - x_offset, self.y - y_offset),
+                (self.x + x_offset, self.y - y_offset),
+                (self.x - x_offset, self.y),
+                (self.x, self.y),
+                (self.x + x_offset, self.y),
+                (self.x - x_offset, self.y + y_offset),
+                (self.x + x_offset, self.y + y_offset)]
+
     def __str__(self):
         return '({0} {1}) {2}'.format(self.x, self.y, self.dice)
+
+
+def is_dots(dots_color):
+    for dot_idx in range(len(dots_color)):
+        for name, member in DiceColorEnum.__members__.items():
+            for color in member.value:
+                if same_color(dots_color[dot_idx], color):
+                    return True
+    return False

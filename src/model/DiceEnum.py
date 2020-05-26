@@ -49,3 +49,23 @@ class DiceEnum(Enum):
     TYPHOON = 44
     TIME = 45
     COMBO = 46
+
+
+class DiceColorEnum(Enum):
+    FIRE = [(48, 39, 210)]
+    ELECTRIC = [(15, 177, 254)]
+    WIND = [(162, 201, 1)]
+    POISON = [(28, 191, 45)]
+    ICE = [(243, 145, 61)]
+    IRON = [(177, 177, 177)]
+    BROKEN = [(251, 8, 143)]
+    GAMBLE = [(255, 8, 90)]
+    LOCK = [(74, 75, 75)]
+    MINE = [(251, 232, 1)]
+    # LIGHT = [(0, 0, 0)]
+    THORN = [(0, 0, 0)]
+    CRACK = [(0, 0, 0)]
+    # CRITICAL = [(0, 0, 0)]
+    ENERGY = [(0, 0, 0)]
+    SACRIFICIAL = [(0, 0, 0)]
+    BOW = [(0, 0, 0)]
