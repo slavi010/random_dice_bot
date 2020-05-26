@@ -139,10 +139,34 @@ class Plateau:
                               (box_case_coord[0] - box[0], box_case_coord[1] - box[1]),
                               (box_case_coord[2] - box[0], box_case_coord[3] - box[1]),
                               color=(0, 0, 255))
-                dots_case_coord = case.coord_all_dots()
-                for dot in dots_case_coord:
-                    img[dot[1] - box[1]][dot[0] - box[0]] = [0, 0, 255]
-                img[case.y + int(case.height * 10 / 50) - box[1]][case.x - box[0]] = [0, 0, 0]
+
+                if case.dice is not None:
+                    # affiche le nom du dé
+                    font = cv2.FONT_HERSHEY_SIMPLEX
+                    bottomLeftCornerOfText = (case.x-box[0] - int(case.width*2/5), case.y-box[1] + int(case.height*2/5))
+                    fontScale = 0.3
+                    fontColor = (0, 0, 0)
+                    lineType = 1
+                    cv2.putText(img, case.dice.type_dice.name,
+                                bottomLeftCornerOfText,
+                                font,
+                                fontScale,
+                                fontColor,
+                                lineType)
+
+                    # affiche le nombre du dé
+                    bottomLeftCornerOfText = (case.x-box[0] - int(case.width*2/5), case.y-box[1] - int(case.height*3/10))
+                    cv2.putText(img, 'dot={0}'.format(case.dice.dot),
+                                bottomLeftCornerOfText,
+                                font,
+                                fontScale,
+                                fontColor,
+                                lineType)
+
+                    dots_case_coord = case.coord_all_dots()
+                    for dot in dots_case_coord:
+                        img[dot[1] - box[1]][dot[0] - box[0]] = [0, 0, 255]
+                    img[case.y + int(case.height * 10 / 50) - box[1]][case.x - box[0]] = [0, 0, 0]
 
         cv2.imshow("show", img)
 
