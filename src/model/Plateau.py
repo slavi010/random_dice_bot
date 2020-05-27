@@ -59,18 +59,21 @@ class Plateau:
                 case.dice = None
 
                 # assigne un dé à la case si les couleurs correspondes
-                if not same_color(avg_color, (220, 220, 220), offset=3) and \
-                        not same_color(avg_color, (110, 0, 63), offset=2):  # couleur du plateau de base
+                if not same_color(avg_color, (220, 220, 220), offset=3):  # couleur du plateau de base
 
                     if case.is_joker_dice(image):
                         nb_dot, color_dot = case.get_dot_dice(image, True)
                         print(str(nb_dot) + " " + str(color_dot))
                         case.dice = Dice(DiceColorEnum.JOKER, nb_dot)
+                    elif case.is_mimic_dice(image):
+                        nb_dot, color_dot = case.get_dot_dice(image, True)
+                        print(str(nb_dot) + " " + str(color_dot))
+                        case.dice = Dice(DiceColorEnum.MIMIC, nb_dot)
                     else:
                         nb_dot, color_dot = case.get_dot_dice(image, False)
                         print(str(nb_dot) + " " + str(color_dot))
                         for name, member in DiceColorEnum.__members__.items():
-                            for color in member.value:
+                            for color in member.value[1]:
                                 if same_color(color, color_dot):
                                     case.dice = Dice(member, nb_dot)
 
@@ -104,20 +107,19 @@ class Plateau:
 
     def get_possible_fusion(self):
         fusions = []
+        cases = np.reshape(self.cases.copy(), 15)
 
-        for y1 in range(3):
-            for x1 in range(5):
-                if self.cases[y1][x1].dice is not None:
-                    for y2 in range(3):
-                        for x2 in range(5):
-                            if self.cases[y2][x2].dice is not None and \
-                                    self.cases[y1][x1].dice.dot == self.cases[y2][x2].dice.dot and \
-                                    (self.cases[y1][x1].dice.type_dice == self.cases[y2][x2].dice.type_dice or
-                                     self.cases[y1][x1].dice.type_dice == DiceColorEnum.JOKER or
-                                     self.cases[y2][x2].dice.type_dice == DiceColorEnum.JOKER) and \
-                                    (self.cases[y1][x1].x != self.cases[y2][x2].x or
-                                     self.cases[y1][x1].y != self.cases[y2][x2].y):
-                                fusions.append((self.cases[y1][x1], self.cases[y2][x2]))
+        for idx_1 in range(15):
+            if cases[idx_1].dice is not None:
+                for idx_2 in range(15):
+                    if cases[idx_2].dice is not None and \
+                            cases[idx_1].dice.dot == cases[idx_2].dice.dot and \
+                            (cases[idx_1].dice.type_dice == cases[idx_2].dice.type_dice or
+                             cases[idx_1].dice.type_dice in [DiceColorEnum.JOKER, DiceColorEnum.MIMIC] or
+                             cases[idx_2].dice.type_dice == DiceColorEnum.MIMIC) and \
+                            (cases[idx_1].x != cases[idx_2].x or
+                             cases[idx_1].y != cases[idx_2].y):
+                        fusions.append((cases[idx_1], cases[idx_2]))
         return fusions
 
     def show(self, image_raw):
@@ -143,7 +145,8 @@ class Plateau:
                 if case.dice is not None:
                     # affiche le nom du dé
                     font = cv2.FONT_HERSHEY_SIMPLEX
-                    bottomLeftCornerOfText = (case.x-box[0] - int(case.width*2/5), case.y-box[1] + int(case.height*2/5))
+                    bottomLeftCornerOfText = (
+                    case.x - box[0] - int(case.width * 2 / 5), case.y - box[1] + int(case.height * 2 / 5))
                     fontScale = 0.3
                     fontColor = (0, 0, 0)
                     lineType = 1
@@ -155,7 +158,8 @@ class Plateau:
                                 lineType)
 
                     # affiche le nombre du dé
-                    bottomLeftCornerOfText = (case.x-box[0] - int(case.width*2/5), case.y-box[1] - int(case.height*3/10))
+                    bottomLeftCornerOfText = (
+                    case.x - box[0] - int(case.width * 2 / 5), case.y - box[1] - int(case.height * 3 / 10))
                     cv2.putText(img, 'dot={0}'.format(case.dice.dot),
                                 bottomLeftCornerOfText,
                                 font,
@@ -163,10 +167,10 @@ class Plateau:
                                 fontColor,
                                 lineType)
 
-                    dots_case_coord = case.coord_all_dots()
-                    for dot in dots_case_coord:
-                        img[dot[1] - box[1]][dot[0] - box[0]] = [0, 0, 255]
-                    img[case.y + int(case.height * 10 / 50) - box[1]][case.x - box[0]] = [0, 0, 0]
+                dots_case_coord = case.coord_all_dots()
+                for dot in dots_case_coord:
+                    img[dot[1] - box[1]][dot[0] - box[0]] = [0, 0, 255]
+                img[case.y + int(case.height * 10 / 50) - box[1]][case.x - box[0]] = [0, 0, 0]
 
         cv2.imshow("show", img)
 

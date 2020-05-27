@@ -1,6 +1,8 @@
 import random
 from time import sleep
 
+import numpy as np
+
 from src.model.DiceEnum import DiceColorEnum
 from src.model.Plateau import Plateau
 
@@ -22,88 +24,106 @@ class FeaturePlateau:
         self.features.append(lambda: self.plateau.is_sacrifice_ready_to_merge(self.plateau.get_possible_fusion()))
         return self
 
-    # sub 0
-    def add_fusion_sacrifice_during_auto_fill_board(self):
-        self.sub_features.append([0])
-        return self
-
     # 1
-    def add_auto_fill_board(self):
-        self.features.append(lambda: self.callback_autofill_board())
-        return self
-
-    # sub 1
-    def add_buy_shop_during_auto_fill_board(self):
-        self.sub_features.append([1])
+    def add_buy_shop(self, proba_buy_shop: float, idx_dices=None):
+        self.features.append(lambda: self.callback_buy_shop(proba_buy_shop, idx_dices))
         return self
 
     # 2
-    def add_auto_merge(self):
-        self.features.append(lambda: self.callback_auto_merge())
-        return self
-
-    # sub 2
-    def add_merge_random_lower_during_auto_merge(self, dices=None):
-        self.sub_features.append([2, dices])
-        return self
-
-    # sub 3
-    def add_fusion_sacrifice_during_auto_merge(self):
-        self.sub_features.append([3])
+    def add_merge_random_lower(self, dices=None, min_dice_present=15):
+        self.features.append(lambda: self.callback_merge_random_lower(dices, min_dice_present))
         return self
 
     # 3
-    def add_sleep_random(self):
-        self.features.append(lambda: sleep(0.1 + random.random()*0.5))
+    def add_sleep_random(self, callback_random_float):
+        # sleep(0.1 + random.random()*0.5)
+        self.features.append(lambda: callback_random_float())
         return self
 
-    # sub 4
-    def add_fusion_joker_to_other_dice_during_auto_merge(self, dice=None):
-        self.sub_features.append([4, dice])
+    # 5
+    def add_fusion_joker_to_other_dice(self, dice=None):
+        self.features.append(lambda: self.callback_fusion_joker_to_other_dice(dice))
         return self
 
-    def callback_autofill_board(self):
-        while self.plateau.get_nb_cases_vide() > random.randint(0, 1):
-            sleep(0.1 + random.random()*0.5)
-            self.plateau.scan()
-            self.plateau.add_dice()
+    # 4
+    def add_add_dice(self):
+        self.features.append(lambda: self.callback_add_dice())
+        return self
 
-            # merge sacrifice
-            if len([features_idx[0] == 0 for features_idx in self.sub_features]) > 0:
-                self.plateau.is_sacrifice_ready_to_merge(self.plateau.get_possible_fusion())
+    def add_fusion_combo(self):
+        self.features.append(lambda: self.callback_fusion_combo())
+        return self
 
-            # achat shop
-            if len([features_idx[0] == 1 for features_idx in self.sub_features]) > 0:
-                while random.random() < 0.1:
-                    self.plateau.buy_shop(random.randint(1, 5))
-                    sleep(1)
+    def callback_add_dice(self):
+        self.plateau.scan()
+        self.plateau.add_dice()
 
-    def callback_auto_merge(self):
+    def callback_buy_shop(self, proba_buy_shop: float, idx_dices=None):
+        idx_dice_to_buy = random.randint(1, 5)
+        while idx_dice_to_buy not in idx_dices and idx_dices is not None:
+            idx_dice_to_buy = random.randint(1, 5)
+
+        while random.random() < proba_buy_shop:
+            sleep(1)
+            self.plateau.buy_shop(idx_dice_to_buy)
+
+    def callback_merge_random_lower(self, dices=None, min_dice_present=15):
+        if 15 - self.plateau.get_nb_cases_vide() >= min_dice_present:
+            fusions = self.plateau.get_possible_fusion()
+            fusions = random.shuffle(fusions)
+            if fusions is not None and len(fusions) > 0:
+                lower_fusion = fusions[0]
+                for fusion in fusions:
+                    # si bon dice à merge
+                    if dices[1] is None or fusion[0].dice.type_dice in dices:
+                        if fusion[0].dice.dot < lower_fusion[0].dice.dot:
+                            lower_fusion = fusion
+                self.plateau.do_fusion(lower_fusion[0], lower_fusion[1])
+                fusions.remove(lower_fusion)
+
+    def callback_fusion_joker_to_other_dice(self, dice):
         fusions = self.plateau.get_possible_fusion()
-        while random.random() < 0.5:
-            if len(fusions) > 0:
+        for fusion in fusions:
+            if fusion[0].dice.type_dice == DiceColorEnum.JOKER and \
+                    fusion[1].dice.type_dice == dice:
+                self.plateau.do_fusion(fusion[0], fusion[1])
+                fusions.remove(fusion)
 
-                for sub_feature in self.sub_features:
-                    # merge_random_lower
-                    if sub_feature[0] == 2:
-                        lower_fusion = fusions[0]
-                        for fusion in fusions:
-                            # si bon dice à merge
-                            if sub_feature[1] is None or fusion[0].dice.type_dice in sub_feature[1]:
-                                if fusion[0].dice.dot < lower_fusion[0].dice.dot:
-                                    lower_fusion = fusion
-                        self.plateau.do_fusion(lower_fusion[0], lower_fusion[1])
-                        fusions.remove(lower_fusion)
+    def callback_fusion_combo(self):
+        fusions = self.plateau.get_possible_fusion()
 
-                    # merge sacrifice
-                    if sub_feature[0] == 3:
-                        self.plateau.is_sacrifice_ready_to_merge(self.plateau.get_possible_fusion())
+        # # on supprime les fusions doublons
+        # for fusion_1 in fusions:
+        #     for fusion_2 in fusions:
+        #         if fusion_1[0] == fusion_2[1] and \
+        #                 fusion_1[1] == fusion_2[0]:
+        #             fusions.remove(fusion_2)
 
-                    # fusion_joker_to_other_dice
-                    if sub_feature[0] == 4:
-                        for fusion in fusions:
-                            if fusion[0].dice.type_dice == DiceColorEnum.JOKER and \
-                                    fusion[1].dice.type_dice == sub_feature[1]:
-                                self.plateau.do_fusion(fusion[0], fusion[1])
-                                fusions.remove(fusion)
+        # on calcul le nombre de combo et de mimic pour chaque *
+        nb_combos = [0 for i in range(7)]
+        nb_mimic = [0 for i in range(7)]
 
+        for case_row in self.plateau.cases:
+            for case in case_row:
+                if case.dice is not None:
+                    if case.dice.type_dice == DiceColorEnum.COMBO:
+                        nb_combos[case.dice.dot] += 1
+                    elif case.dice.type_dice == DiceColorEnum.MIMIC:
+                        nb_mimic[case.dice.dot] += 1
+
+        # on fusion si min (2 combo + 1 mimic) ou (3 combo)
+        for etoile in range(6):
+            if nb_combos[etoile] >= 2 and nb_mimic[etoile] >= 1:
+                for fusion in fusions:
+                    if fusion[0].dice.type_dice == DiceColorEnum.COMBO and \
+                            fusion[1].dice.type_dice == DiceColorEnum.MIMIC:
+                        self.plateau.do_fusion(fusion[0], fusion[1])
+                        break
+                break
+            elif nb_combos[etoile] >= 3:
+                for fusion in fusions:
+                    if fusion[0].dice.type_dice == DiceColorEnum.COMBO and \
+                            fusion[1].dice.type_dice == DiceColorEnum.COMBO:
+                        self.plateau.do_fusion(fusion[0], fusion[1])
+                        break
+                break

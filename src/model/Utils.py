@@ -1,7 +1,7 @@
 import colorsys
 
 
-def same_color(color1, color2, offset=10):
+def same_color(color1, color2, offset=10    ):
     return color2[0] - offset < color1[0] < color2[0] + offset and \
            color2[1] - offset < color1[1] < color2[1] + offset and \
            color2[2] - offset < color1[2] < color2[2] + offset

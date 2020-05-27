@@ -46,7 +46,12 @@ class Case:
         # print('joker color : ' + str(color))
         return same_color_offset_rgb(color, (150, 232, 216), offset_rgb=(50, 15, 30))
 
-    def get_dot_dice(self, image, is_joker: bool):
+    def is_mimic_dice(self, image):
+        color = image[self.y + int(self.height*10/50)][self.x]
+        # print('joker color : ' + str(color))
+        return same_color_offset_rgb(color, (236, 192, 246), offset_rgb=(15, 15, 15))
+
+    def get_dot_dice(self, image, is_multi_color: bool):
         #
         # *   * (0     1)
         # * * * (2  3  4)
@@ -56,7 +61,7 @@ class Case:
         y_offset = int(self.height / 5)
         dots_color = [image[coord[1]][coord[0]] for coord in self.coord_all_dots()]
 
-        if not is_joker:
+        if not is_multi_color:
             # 1*
             tmp_dots = dots_color.copy()
             tmp_dots.pop(3)
@@ -66,8 +71,8 @@ class Case:
             # 2*
             tmp_dots = dots_color.copy()
             tmp_dots.pop(1)
-            tmp_dots.pop(5)
-            if is_dots_dice(tmp_dots):
+            tmp_dots.pop(5 - 1)
+            if not is_dots_dice(tmp_dots):
                 return 2, dots_color[1]
 
             # 3*
@@ -103,7 +108,6 @@ class Case:
         else:
             # 1*
             tmp_dots = dots_color.copy()
-            tmp_dots.pop(3)
             if not is_dots_same_color(tmp_dots):
                 return 1, None
 
@@ -145,7 +149,7 @@ class Case:
 def is_dots_dice(dots_color):
     for dot_idx in range(len(dots_color)):
         for name, member in DiceColorEnum.__members__.items():
-            for color in member.value:
+            for color in member.value[1]:
                 if same_color(dots_color[dot_idx], color):
                     return True
 
