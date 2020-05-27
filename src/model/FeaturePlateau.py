@@ -55,7 +55,7 @@ class FeaturePlateau:
         return self
 
     def callback_add_dice(self):
-        self.plateau.scan()
+        # self.plateau.scan()
         self.plateau.add_dice()
 
     def callback_buy_shop(self, proba_buy_shop: float, idx_dices=None):
@@ -70,12 +70,11 @@ class FeaturePlateau:
     def callback_merge_random_lower(self, dices=None, min_dice_present=15):
         if 15 - self.plateau.get_nb_cases_vide() >= min_dice_present:
             fusions = self.plateau.get_possible_fusion()
-            fusions = random.shuffle(fusions)
             if fusions is not None and len(fusions) > 0:
                 lower_fusion = fusions[0]
                 for fusion in fusions:
                     # si bon dice à merge
-                    if dices[1] is None or fusion[0].dice.type_dice in dices:
+                    if dices is None or fusion[0].dice.type_dice in dices:
                         if fusion[0].dice.dot < lower_fusion[0].dice.dot:
                             lower_fusion = fusion
                 self.plateau.do_fusion(lower_fusion[0], lower_fusion[1])
@@ -107,23 +106,25 @@ class FeaturePlateau:
             for case in case_row:
                 if case.dice is not None:
                     if case.dice.type_dice == DiceColorEnum.COMBO:
-                        nb_combos[case.dice.dot] += 1
+                        nb_combos[case.dice.dot-1] += 1
                     elif case.dice.type_dice == DiceColorEnum.MIMIC:
-                        nb_mimic[case.dice.dot] += 1
+                        nb_mimic[case.dice.dot-1] += 1
 
         # on fusion si min (2 combo + 1 mimic) ou (3 combo)
         for etoile in range(6):
             if nb_combos[etoile] >= 2 and nb_mimic[etoile] >= 1:
                 for fusion in fusions:
                     if fusion[0].dice.type_dice == DiceColorEnum.COMBO and \
-                            fusion[1].dice.type_dice == DiceColorEnum.MIMIC:
+                            fusion[1].dice.type_dice == DiceColorEnum.MIMIC and \
+                            fusion[0].dice.dot == etoile+1:
                         self.plateau.do_fusion(fusion[0], fusion[1])
                         break
                 break
             elif nb_combos[etoile] >= 3:
                 for fusion in fusions:
                     if fusion[0].dice.type_dice == DiceColorEnum.COMBO and \
-                            fusion[1].dice.type_dice == DiceColorEnum.COMBO:
+                            fusion[1].dice.type_dice == DiceColorEnum.COMBO and \
+                            fusion[0].dice.dot == etoile+1:
                         self.plateau.do_fusion(fusion[0], fusion[1])
                         break
                 break

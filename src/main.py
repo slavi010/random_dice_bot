@@ -22,18 +22,18 @@ if __name__ == '__main__':
         .add_fusion_combo() \
         .add_merge_random_lower(dices=[DiceColorEnum.SACRIFICIAL,
                                        DiceColorEnum.MIMIC],
-                                min_dice_present=15) \
+                                min_dice_present=14) \
         .add_sleep_random(callback_random_float=lambda: sleep(0.1 + random.random() * 1))
     plateau.feature = feature
 
     sleep(1)
-    plateau.scan()
+    # plateau.scan()
 
     # k = cv2.waitKey(0)
 
     while True:
         print('case vide = {}'.format(plateau.get_nb_cases_vide()))
-        plateau.scan()
+        plateau.scan_many_time(nb_scan=15, time_between_two_scan_ms=1)
 
         plateau.feature.start_features()
         # sleep(1)

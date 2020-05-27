@@ -1,4 +1,5 @@
 import random
+from operator import itemgetter
 from time import sleep
 
 import cv2 as cv2
@@ -43,16 +44,50 @@ class Plateau:
             self.btn_coord_buy_shop.append(
                 (x_1 - int(width_dice * 4 / 5) + i * int(width_dice * 1.43), y_2 + int(height_dice * 4.3)))
 
+    def scan_many_time(self, nb_scan, time_between_two_scan_ms=10):
+        occurence_dice = [[] for i in range(15)]
+        for i in range(nb_scan):
+            sleep(time_between_two_scan_ms/1000)
+            self.scan()
+            # on ajoute pour chaque case
+            for case_y in range(3):
+                for case_x in range(5):
+                    # si le dé n'est pas null
+                    if self.cases[case_y][case_x].dice is not None:
+                        # on cherche si le dé est déjà présent
+                        flag_dice_deja_present = False
+                        for dice_and_occurence in occurence_dice[case_y*5 + case_x]:
+                            if dice_and_occurence[0].dot == self.cases[case_y][case_x].dice.dot and \
+                                    dice_and_occurence[0].type_dice == self.cases[case_y][case_x].dice.type_dice:
+                                dice_and_occurence[1] += 1
+                                flag_dice_deja_present = True
+                        # l'occurence n'est pas encore présente alors on la crée
+                        if not flag_dice_deja_present:
+                            occurence_dice[case_y*5 + case_x].append([self.cases[case_y][case_x].dice, 1])
+
+        # on fait la "moyenne"
+        for case_idx in range(15):
+            # on trie avec les dés qui ont un occurance la plus forte en premier
+            occurence_dice[case_idx].sort(key=itemgetter(1), reverse=True)
+            # il y a moins de 33% d'un même dé alors None
+            if len(occurence_dice[case_idx]) == 0 or occurence_dice[case_idx][0][1] < nb_scan/3:
+                self.cases[int(case_idx/5)][case_idx%5].dice = None
+            else:
+                self.cases[int(case_idx/5)][case_idx%5].dice = occurence_dice[case_idx][0][0]
+
+        image = grab_image(box=(0, 0, self.screen_size[0], self.screen_size[1]))
+        self.show(image)
+
     def scan(self):
         """Met à jours les dés présents"""
         image = grab_image(box=(0, 0, self.screen_size[0], self.screen_size[1]))
 
         range_color = 15
 
-        compteur = 0
+        # compteur = 0
         for case_row in self.cases:
             for case in case_row:
-                compteur += 1
+                # compteur += 1
                 # print(str(compteur) + " " + str(case.get_average_color(image)))
 
                 avg_color = case.get_average_color(image)
@@ -63,23 +98,21 @@ class Plateau:
 
                     if case.is_joker_dice(image):
                         nb_dot, color_dot = case.get_dot_dice(image, True)
-                        print(str(nb_dot) + " " + str(color_dot))
+                        # print(str(nb_dot) + " " + str(color_dot))
                         case.dice = Dice(DiceColorEnum.JOKER, nb_dot)
                     elif case.is_mimic_dice(image):
                         nb_dot, color_dot = case.get_dot_dice(image, True)
-                        print(str(nb_dot) + " " + str(color_dot))
+                        # print(str(nb_dot) + " " + str(color_dot))
                         case.dice = Dice(DiceColorEnum.MIMIC, nb_dot)
                     else:
                         nb_dot, color_dot = case.get_dot_dice(image, False)
-                        print(str(nb_dot) + " " + str(color_dot))
+                        # print(str(nb_dot) + " " + str(color_dot))
                         for name, member in DiceColorEnum.__members__.items():
                             for color in member.value[1]:
                                 if same_color(color, color_dot):
                                     case.dice = Dice(member, nb_dot)
 
-                print(case.__str__())
-        print("#######################")
-        self.show(image)
+                # print(case.__str__())
 
     def get_nb_cases_vide(self):
         cases_vides = 0
@@ -105,7 +138,7 @@ class Plateau:
         self.ahk.mouse_move(x=self.cases[0][0].x - self.cases[0][0].width,
                             y=self.cases[0][0].y - self.cases[0][0].height)
 
-    def get_possible_fusion(self):
+    def get_possible_fusion(self, shuffle=True):
         fusions = []
         cases = np.reshape(self.cases.copy(), 15)
 
@@ -120,6 +153,8 @@ class Plateau:
                             (cases[idx_1].x != cases[idx_2].x or
                              cases[idx_1].y != cases[idx_2].y):
                         fusions.append((cases[idx_1], cases[idx_2]))
+        if shuffle:
+            random.shuffle(fusions)
         return fusions
 
     def show(self, image_raw):
@@ -132,7 +167,6 @@ class Plateau:
                last_case.y + last_case.height)
         # print('box ' + str(box))
         img = image_raw.copy()[box[1]:box[3], box[0]:box[2]]
-        cv2.waitKey(1)
 
         for case_row in self.cases:
             for case in case_row:
@@ -173,6 +207,7 @@ class Plateau:
                 img[case.y + int(case.height * 10 / 50) - box[1]][case.x - box[0]] = [0, 0, 0]
 
         cv2.imshow("show", img)
+        cv2.waitKey(1)
 
     def is_sacrifice_ready_to_merge(self, fusions):
         for fusion in fusions:
@@ -181,6 +216,12 @@ class Plateau:
                 self.do_fusion(fusion[0], fusion[1])
                 fusions.remove(fusion)
 
+                # on supprime la fusion inverse
+                for f in fusions:
+                    if fusion[0] == f[1] and \
+                            fusion[1] == f[0]:
+                        fusions.remove(f)
+                        break
 
 def pil_to_cv2(image_pil):
     return cv2.cvtColor(np.array(image_pil), cv2.COLOR_RGB2BGR)
