@@ -2,9 +2,10 @@ import random
 from time import sleep
 
 import numpy as np
+from ahk import AHK
 
 from src.model.DiceEnum import DiceColorEnum
-from src.model.Plateau import Plateau
+from src.model.Plateau import Plateau, grab_image
 
 
 class FeaturePlateau:
@@ -25,8 +26,8 @@ class FeaturePlateau:
         return self
 
     # 1
-    def add_buy_shop(self, proba_buy_shop: float, idx_dices=None):
-        self.features.append(lambda: self.callback_buy_shop(proba_buy_shop, idx_dices))
+    def add_buy_shop(self, proba_buy_shop: float, idx_dices=None, min_dice_board=6):
+        self.features.append(lambda: self.callback_buy_shop(proba_buy_shop, idx_dices, min_dice_board))
         return self
 
     # 2
@@ -50,22 +51,30 @@ class FeaturePlateau:
         self.features.append(lambda: self.callback_add_dice())
         return self
 
-    def add_fusion_combo(self):
-        self.features.append(lambda: self.callback_fusion_combo())
+    # 5
+    def add_auto_pub_and_start(self, ahk:AHK):
+        self.features.append(lambda: self.callback_auto_pub_and_start(ahk=ahk))
         return self
 
-    def callback_add_dice(self):
+    def add_fusion_combo(self, max_dot_fusion=4):
+        self.features.append(lambda: self.callback_fusion_combo(max_dot_fusion=max_dot_fusion))
+        return self
+
+    def callback_add_dice(self, check_is_end=True, wait_time_sec=1):
         # self.plateau.scan()
-        self.plateau.add_dice()
+        sleep(wait_time_sec)
+        if check_is_end and not self.plateau.is_end(image=grab_image(box=(0, 0, self.plateau.screen_size[0], self.plateau.screen_size[1]))):
+            self.plateau.add_dice()
 
-    def callback_buy_shop(self, proba_buy_shop: float, idx_dices=None):
+    def callback_buy_shop(self, proba_buy_shop: float, idx_dices=None, min_dice_board=6):
         idx_dice_to_buy = random.randint(1, 5)
-        while idx_dice_to_buy not in idx_dices and idx_dices is not None:
-            idx_dice_to_buy = random.randint(1, 5)
+        if 15 - self.plateau.get_nb_cases_vide() >= min_dice_board:
+            while idx_dice_to_buy not in idx_dices and idx_dices is not None:
+                idx_dice_to_buy = random.randint(1, 5)
 
-        while random.random() < proba_buy_shop:
-            sleep(1)
-            self.plateau.buy_shop(idx_dice_to_buy)
+            while random.random() < proba_buy_shop:
+                sleep(1)
+                self.plateau.buy_shop(idx_dice_to_buy)
 
     def callback_merge_random_lower(self, dices=None, min_dice_present=15):
         if 15 - self.plateau.get_nb_cases_vide() >= min_dice_present:
@@ -88,7 +97,7 @@ class FeaturePlateau:
                 self.plateau.do_fusion(fusion[0], fusion[1])
                 fusions.remove(fusion)
 
-    def callback_fusion_combo(self):
+    def callback_fusion_combo(self, max_dot_fusion=4):
         fusions = self.plateau.get_possible_fusion()
 
         # # on supprime les fusions doublons
@@ -116,7 +125,8 @@ class FeaturePlateau:
                 for fusion in fusions:
                     if fusion[0].dice.type_dice == DiceColorEnum.COMBO and \
                             fusion[1].dice.type_dice == DiceColorEnum.MIMIC and \
-                            fusion[0].dice.dot == etoile+1:
+                            fusion[0].dice.dot == etoile+1 and \
+                            fusion[0].dice.dot <= max_dot_fusion:
                         self.plateau.do_fusion(fusion[0], fusion[1])
                         break
                 break
@@ -124,7 +134,26 @@ class FeaturePlateau:
                 for fusion in fusions:
                     if fusion[0].dice.type_dice == DiceColorEnum.COMBO and \
                             fusion[1].dice.type_dice == DiceColorEnum.COMBO and \
-                            fusion[0].dice.dot == etoile+1:
+                            fusion[0].dice.dot == etoile+1 and \
+                            fusion[0].dice.dot <= max_dot_fusion:
                         self.plateau.do_fusion(fusion[0], fusion[1])
                         break
                 break
+
+    def callback_auto_pub_and_start(self, ahk:AHK):
+        if self.plateau.is_end(image=grab_image(box=(0, 0, self.plateau.screen_size[0], self.plateau.screen_size[1]))):
+            sleep(1)
+            print("auto")
+            self.callback_add_dice(check_is_end=False)
+            # attend chargement
+            sleep(10)
+            if not self.plateau.is_coop_ready(grab_image(box=(0, 0, self.plateau.screen_size[0], self.plateau.screen_size[1]))):
+                # on regarde la pub
+                self.plateau.start_pub()
+                sleep(2)
+                while self.plateau.is_coop_ready(grab_image(box=(0, 0, self.plateau.screen_size[0], self.plateau.screen_size[1]))):
+                    sleep(2)
+                    ahk.key_press('Escape')
+                    sleep(2)
+                self.plateau.start_coop()
+                sleep(15)

@@ -5,8 +5,8 @@ from time import sleep
 import cv2 as cv2
 import numpy as np
 
+from src.controller import MouseEvent
 from src.model.Case import Case
-from src.controller.MouseEvent import get_next_click_mouse
 
 from PIL import Image, ImageGrab
 
@@ -22,27 +22,30 @@ class Plateau:
         self.ahk = ahk
         self.feature = None
 
-        # get position premier dé en haut à gauche
-        x_1, y_1, _, _ = get_next_click_mouse()
+        # get position premier dé en haut à gauche et dernier dé en bas à droite
+        x_1, y_1, x_2, y_2 = MouseEvent.grab_points_dice()
 
-        sleep(0.5)
-        # get position dernier dé en bas à droite
-        x_2, y_2, _, _ = get_next_click_mouse()
-
-        width_dice = int((x_2 - x_1) / 4)
-        height_dice = int((y_2 - y_1) / 2)
+        width_dice = (x_2 - x_1) / 4
+        height_dice = (y_2 - y_1) / 2
         print('width_dice={0}, height_dice={1}'.format(width_dice, height_dice))
 
-        self.cases = [[Case(j * width_dice + x_1, i * height_dice + y_1, width_dice, height_dice) for j in range(5)] for
+        self.cases = [[Case(int(j * width_dice + x_1), int(i * height_dice + y_1), int(width_dice), int(height_dice)) for j in range(5)] for
                       i in range(3)]
 
         self.screen_size = (1920, 1080)
 
-        self.btn_coord_add_dice = (x_1 + width_dice * 2, y_2 + int(height_dice * 2.6))
+        # btn = (x, y)
+        self.btn_coord_add_dice = (x_1 + int(width_dice * 2.05), y_2 + int(height_dice * 2.6))
         self.btn_coord_buy_shop = []
         for i in range(5):
             self.btn_coord_buy_shop.append(
                 (x_1 - int(width_dice * 4 / 5) + i * int(width_dice * 1.43), y_2 + int(height_dice * 4.3)))
+        self.btn_coord_coop_mode = (x_2 + int(width_dice/5), y_2 + int(height_dice * 2))
+        self.btn_coord_coop_mode_pub = (x_2 + int(width_dice), y_2 + int(height_dice * 2))
+        self.btn_coord_coop_mode_quick_match = (x_2 + int(width_dice), y_2 - int(height_dice))
+
+        # check fin de manche
+        self.coord_end = (x_1 + int(width_dice*8/5), y_1 - int(height_dice))
 
     def scan_many_time(self, nb_scan, time_between_two_scan_ms=10):
         occurence_dice = [[] for i in range(15)]
@@ -222,6 +225,26 @@ class Plateau:
                             fusion[1] == f[0]:
                         fusions.remove(f)
                         break
+
+    def is_coop_ready(self, image):
+        return same_color(image[self.btn_coord_coop_mode[1]][self.btn_coord_coop_mode[0]],
+                          (255, 213, 165), offset=2)
+
+    def start_pub(self):
+        self.ahk.click(x=self.btn_coord_coop_mode_pub[0], y=self.btn_coord_coop_mode_pub[1], blocking=False)
+
+    def start_coop(self):
+        self.ahk.click(x=self.btn_coord_coop_mode[0], y=self.btn_coord_coop_mode[1], blocking=False)
+        sleep(1)
+        self.ahk.click(x=self.btn_coord_coop_mode_quick_match[0], y=self.btn_coord_coop_mode_quick_match[1], blocking=False)
+
+    def is_end(self, image):
+        return same_color(image[self.coord_end[1]][self.coord_end[0]],
+                          (239, 173, 51), offset=30) or \
+               not same_color(image[self.btn_coord_add_dice[1]][self.btn_coord_add_dice[0]],
+                          (250, 250, 250), offset=6)
+
+
 
 def pil_to_cv2(image_pil):
     return cv2.cvtColor(np.array(image_pil), cv2.COLOR_RGB2BGR)

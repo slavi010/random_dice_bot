@@ -62,11 +62,11 @@ class Case:
         dots_color = [image[coord[1]][coord[0]] for coord in self.coord_all_dots()]
 
         if not is_multi_color:
-            # 1*
+            # 1* or 7*
             tmp_dots = dots_color.copy()
             tmp_dots.pop(3)
             if not is_dots_dice(tmp_dots):
-                return 1, dots_color[3]
+                return 7 if self.is_star(image) else 1, dots_color[3]
 
             # 2*
             tmp_dots = dots_color.copy()
@@ -102,14 +102,12 @@ class Case:
             if not is_dots_dice(tmp_dots):
                 return 5, dots_color[3]
 
-            # TODO : 7
-
             return 6, dots_color[1]
         else:
-            # 1*
+            # 1* or 7*
             tmp_dots = dots_color.copy()
             if not is_dots_same_color(tmp_dots):
-                return 1, None
+                return 7 if self.is_star(image) else 1, None
 
             # 2*
             if not is_dots_same_color([dots_color[0], dots_color[1], dots_color[3]]):
@@ -141,6 +139,35 @@ class Case:
                 (self.x + x_offset, self.y),
                 (self.x - x_offset, self.y + y_offset),
                 (self.x + x_offset, self.y + y_offset)]
+
+    def is_star(self, image):
+        x_offset = int(self.width / 6.8)
+        y_offset = int(self.height / 6.8)
+        image = image[self.y-y_offset:self.y+y_offset, self.x-x_offset:self.x+x_offset]
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+        edges = cv2.Canny(gray, 100, 100*3)
+
+        # on prend les contours
+        ret, thresh = cv2.threshold(edges.copy(),
+                                    0,
+                                    255,
+                                    cv2.THRESH_BINARY)
+        contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_TC89_KCOS)
+        contours = sorted(contours, key=cv2.contourArea, reverse=True)
+
+        div_max_size = 0.23
+        div_min_size = 0.2
+        for contour in contours:
+            # print(np.sqrt(cv2.contourArea(contour))/cv2.arcLength(contour, True))
+            area = cv2.contourArea(contour)
+            if div_max_size > np.sqrt(area)/cv2.arcLength(contour, True) > div_min_size and \
+                    area > x_offset*y_offset*4/2:
+                cv2.imshow("cv2", image)
+                cv2.waitKey(1)
+                return True
+
+        return False
 
     def __str__(self):
         return '({0} {1}) {2}'.format(self.x, self.y, self.dice)
