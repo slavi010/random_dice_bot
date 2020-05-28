@@ -33,11 +33,16 @@ Il est possible de specifier dans le code des actions tel que :
 * Python 3 (testé avec 3.7)
 * AHK : https://www.autohotkey.com/download/
     * Si après lancement de bot , il ne détecte pas AHK, pensez à l'ajouter dans la varible PATH de votre ordinateur.
-* Avec pip :
-    * pip install pillow
-    * pip install ahk
-    * pip install opencv-python
-    * pip install pynput
+* Dépendances python
+    * Avec pip manuellement
+        * ```pip install pillow```
+        * ```pip install ahk```
+        * ```pip install opencv-python```
+        * ```pip install pynput```
+    * Avec pip requirements.txt
+        * ```pip install -r requirements.txt```
+
+*(Ou ```pip3``` en fonction de votre installation de python)
 
 ## Utilisation du bot
 ### Android sur PC
@@ -121,5 +126,9 @@ Créez une [nouvelle Issue](https://github.com/slavi010/random_dice_bot/issues/n
     pensez à mettre votre nom et votre email en haut du fichier.
     
 ## Clause de non responsabilité
+Ce projet a pour but une utilisation ludique des capacités de python.
+En **AUCUN** cas, il n'a pour but de farm des coffres ou toutes autres choses en désacord
+avec les règles du jeu Random Dice.
+
 Personne à par vous êtes responssable responsable en cas de ban ou d'autres problèmes. 
 Vous l'utilisez en toute connaissance de cause, à vos risques et périls.
