@@ -1,4 +1,5 @@
-![Bot run gif](https://cdn.kapwing.com/final_5ecfd27cbecf9800154a81d1_714117.gif)
+# Random Dice Bot
+![Bot run gif](https://slavi.dev/nextcloud/index.php/s/ERAojSXKLewXn3f/preview)
 
 # Readme Language 
  - French / Français
