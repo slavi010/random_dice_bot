@@ -17,13 +17,13 @@ if __name__ == '__main__':
         .add_add_dice() \
         .add_sleep_random(callback_random_float=lambda: sleep(0.1 + random.random() * 0.5)) \
         .add_fusion_joker_to_other_dice(dice=DiceColorEnum.COMBO) \
-        .add_fusion_sacrifice() \
+        .add_fusion_dice(dice=DiceColorEnum.SACRIFICIAL) \
+        .add_fusion_dice(dice=DiceColorEnum.METASTASIS) \
         .add_buy_shop(proba_buy_shop=0.05, idx_dices=[5], min_dice_board=8) \
         .add_fusion_combo(max_dot_fusion=4) \
         .add_merge_random_lower(dices=[DiceColorEnum.SACRIFICIAL,
                                        DiceColorEnum.MIMIC],
                                 min_dice_present=15) \
-        .add_sleep_random(callback_random_float=lambda: sleep(0.1 + random.random() * 1)) \
         .add_auto_pub_and_start(ahk)
     plateau.feature = feature
 

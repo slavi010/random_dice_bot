@@ -77,3 +77,5 @@ class DiceColorEnum(Enum):
     GROWTH = (36, [(147, 40, 57), (119, 29, 46)])
 
     COMBO = (46, [(145, 32, 162)])
+
+    METASTASIS =(43, [(108, 35, 73)])
