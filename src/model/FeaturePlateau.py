@@ -56,8 +56,8 @@ class FeaturePlateau:
         return self
 
     # 5
-    def add_fusion_joker_to_other_dice(self, dice=None):
-        self.features.append(lambda: self.callback_fusion_joker_to_other_dice(dice))
+    def add_fusion_joker_to_other_dice(self, dice=None, min_joker=1, merge_all=True):
+        self.features.append(lambda: self.callback_fusion_joker_to_other_dice(dice, min_joker, merge_all))
         return self
 
     # 4
@@ -103,13 +103,27 @@ class FeaturePlateau:
                 self.plateau.do_fusion(lower_fusion[0], lower_fusion[1])
                 fusions.remove(lower_fusion)
 
-    def callback_fusion_joker_to_other_dice(self, dice):
+    def callback_fusion_joker_to_other_dice(self, dice, min_joker=1, merge_all=True):
         fusions = self.plateau.get_possible_fusion()
+
+        # get number sacrifice
+        # on calcule le nombre de joker pour chaque *
+        nb_joker = [0 for i in range(7)]
+
+        for case_row in self.plateau.cases:
+            for case in case_row:
+                if case.dice is not None:
+                    if case.dice.type_dice == DiceColorEnum.JOKER:
+                        nb_joker[case.dice.dot-1] += 1
+
         for fusion in fusions:
             if fusion[0].dice.type_dice == DiceColorEnum.JOKER and \
-                    fusion[1].dice.type_dice == dice:
+                    fusion[1].dice.type_dice == dice and \
+                    nb_joker[fusion[0].dice.dot-1] >= min_joker:
                 self.plateau.do_fusion(fusion[0], fusion[1])
                 fusions.remove(fusion)
+                if not merge_all:
+                    return
 
     def callback_fusion_combo(self, max_dot_fusion=4):
         fusions = self.plateau.get_possible_fusion()
