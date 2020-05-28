@@ -62,7 +62,7 @@ class FeaturePlateau:
 
     def callback_add_dice(self, check_is_end=True, wait_time_sec=1):
         # self.plateau.scan()
-        sleep(wait_time_sec)
+        # sleep(wait_time_sec)
         if not check_is_end or not self.plateau.is_end(image=grab_image(box=(0, 0, self.plateau.screen_size[0], self.plateau.screen_size[1]))):
             self.plateau.add_dice()
 

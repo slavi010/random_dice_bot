@@ -63,9 +63,7 @@ class Case:
 
         if not is_multi_color:
             # 1* or 7*
-            tmp_dots = dots_color.copy()
-            tmp_dots.pop(3)
-            if not is_dots_dice(tmp_dots):
+            if not is_dots_dice([dots_color[1]]):
                 return 7 if self.is_star(image) else 1, dots_color[3]
 
             # 2*
@@ -105,8 +103,7 @@ class Case:
             return 6, dots_color[1]
         else:
             # 1* or 7*
-            tmp_dots = dots_color.copy()
-            if not is_dots_same_color(tmp_dots):
+            if not is_dots_same_color([dots_color[1], dots_color[5]]):
                 return 7 if self.is_star(image) else 1, None
 
             # 2*
@@ -184,10 +181,10 @@ def is_dots_dice(dots_color):
 
 def is_dots_same_color(dots_color):
     for dot_idx in range(len(dots_color)):
-        if not (dots_color[dot_idx][0] > 250 and dots_color[dot_idx][1] > 250 and dots_color[dot_idx][2] > 250):
+        if not (dots_color[dot_idx][0] > 230 and dots_color[dot_idx][1] > 230 and dots_color[dot_idx][2] > 230):
             # pas blanc
             for j in range(dot_idx+1, len(dots_color)):
-                if same_color(dots_color[dot_idx], dots_color[j]):
+                if same_color(dots_color[dot_idx], dots_color[j], offset=40):
                     return True
 
     return False
