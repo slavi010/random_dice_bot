@@ -32,6 +32,7 @@ if __name__ == '__main__':
         .add_add_dice() \
         .add_sleep_random(callback_random_float=lambda: sleep(0.1 + random.random() * 0.5)) \
         .add_fusion_joker_to_other_dice(dice=DiceColorEnum.COMBO) \
+        .add_fusion_joker_to_other_dice(dice=DiceColorEnum.SACRIFICIAL, min_joker=2, merge_all=False) \
         .add_fusion_dice(dice=DiceColorEnum.SACRIFICIAL) \
         .add_fusion_dice(dice=DiceColorEnum.METASTASIS) \
         .add_buy_shop(proba_buy_shop=0.05, idx_dices=[5], min_dice_board=8) \

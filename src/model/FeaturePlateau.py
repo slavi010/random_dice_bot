@@ -127,25 +127,27 @@ class FeaturePlateau:
                         nb_mimic[case.dice.dot-1] += 1
 
         # on fusionne si min (2 combo + 1 mimic) ou (3 combo)
+        flag_merge_done = False
         for etoile in range(6):
-            if nb_combos[etoile] >= 2 and nb_mimic[etoile] >= 1:
-                for fusion in fusions:
-                    if fusion[0].dice.type_dice == DiceColorEnum.COMBO and \
-                            fusion[1].dice.type_dice == DiceColorEnum.MIMIC and \
-                            fusion[0].dice.dot == etoile+1 and \
-                            fusion[0].dice.dot <= max_dot_fusion:
-                        self.plateau.do_fusion(fusion[0], fusion[1])
-                        break
-                break
-            elif nb_combos[etoile] >= 3:
-                for fusion in fusions:
-                    if fusion[0].dice.type_dice == DiceColorEnum.COMBO and \
-                            fusion[1].dice.type_dice == DiceColorEnum.COMBO and \
-                            fusion[0].dice.dot == etoile+1 and \
-                            fusion[0].dice.dot <= max_dot_fusion:
-                        self.plateau.do_fusion(fusion[0], fusion[1])
-                        break
-                break
+            if not flag_merge_done:
+                if nb_combos[etoile] >= 2 and nb_mimic[etoile] >= 1:
+                    for fusion in fusions:
+                        if fusion[0].dice.type_dice == DiceColorEnum.COMBO and \
+                                fusion[1].dice.type_dice == DiceColorEnum.MIMIC and \
+                                fusion[0].dice.dot == etoile+1 and \
+                                fusion[0].dice.dot <= max_dot_fusion:
+                            self.plateau.do_fusion(fusion[0], fusion[1])
+                            break
+                    flag_merge_done = True
+                elif nb_combos[etoile] >= 3:
+                    for fusion in fusions:
+                        if fusion[0].dice.type_dice == DiceColorEnum.COMBO and \
+                                fusion[1].dice.type_dice == DiceColorEnum.COMBO and \
+                                fusion[0].dice.dot == etoile+1 and \
+                                fusion[0].dice.dot <= max_dot_fusion:
+                            self.plateau.do_fusion(fusion[0], fusion[1])
+                            break
+                    flag_merge_done = True
 
     def callback_auto_pub_and_start(self, ahk:AHK):
         if self.plateau.is_end(image=grab_image(box=(0, 0, self.plateau.screen_size[0], self.plateau.screen_size[1]))):
