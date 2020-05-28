@@ -25,7 +25,7 @@ Il est possible de specifier dans le code des actions tel que :
     ```
 * "Après une fin de game, tu regardes la pub et lance une nouvelle partie"
     ```python
-    feature.add_fusion_combo(max_dot_fusion=4)
+    feature.add_auto_pub_and_start(ahk)
     ```
 
 ## Prérequis
