@@ -1,4 +1,4 @@
-![Bot run gif](https://cdn.kapwing.com/final_5ecfd27cbecf9800154a81d1_48555.gif)
+![Bot run gif](https://cdn.kapwing.com/final_5ecfd27cbecf9800154a81d1_714117.gif)
 
 # Readme Language 
  - French / Français
@@ -54,14 +54,14 @@ Donc vous devez utiliser soit :
 ![Image board where click](https://slavi.dev/nextcloud/index.php/s/zjZG52Y83S2awrY/preview)
 5. Le bot va ensuite démarrer.
 
-Une nouvelle feunêtre devrais être apparaître.
+Une nouvelle feunêtre devrait apparaître.
 La grille en rouge devrais normalement être PARFAITEMENT aligné avec les cases du plateau.
 Si ce n'est pas le cas, arrêter le bot/programme puis recommencer.
 
 ![Image board grid](https://slavi.dev/nextcloud/index.php/s/6GQXDiFcoZq6kCJ/preview)
 
 ### Arrêter le bot
-Actullement, VOUS NE POUVEZ ARRETER LE BOT.
+Actuellement, VOUS NE POUVEZ ARRETER LE BOT.
 [#3](https://github.com/slavi010/random_dice_bot/issues/3)
 
 ### Skin de la carte
@@ -104,7 +104,8 @@ la partie feature.
 
 ### Les points des dés
 Actuellement il y a uniquement les dés de 1 à 6 points qui sont pris en charge.
-Les dés de 7 points (qui ont une étoile) sont détecté comme des dés à 1 point (regardez [#1](https://github.com/slavi010/random_dice_bot/issues/1#issue-626545664)).
+Les dés de 7 points (qui ont une étoile) sont détecté comme des dés à 1 point.
+[#1](https://github.com/slavi010/random_dice_bot/issues/1#issue-626545664))
 
 ## Contribution
 Si vous voulez donner un coup de main :
