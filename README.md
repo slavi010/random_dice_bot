@@ -12,13 +12,21 @@ Il détecte le type de dé et sont nombre de point.
 
 Il est possible de specifier dans le code des actions tel que :
 * "Tu fusionnes toujours les sacrifices si possible"
-    ```feature.add_fusion_dice(dice=DiceColorEnum.SACRIFICIAL) \```
+    ```python
+    feature.add_fusion_dice(dice=DiceColorEnum.SACRIFICIAL)
+    ```
 * "Tu as une probabilité de 5% d'acheter l'amélioration du 5eme dé si il y a au moins 8 dés sur le plateau"
-    ```feature.add_buy_shop(proba_buy_shop=0.05, idx_dices=[5], min_dice_board=8) \```
+    ```python
+    feature.add_buy_shop(proba_buy_shop=0.05, idx_dices=[5], min_dice_board=8)
+    ```
 * "Tu fusionnes les combos de manière intelligente"
-    ```feature.add_fusion_combo(max_dot_fusion=4) \```
+    ```python
+    feature.add_fusion_combo(max_dot_fusion=4)
+    ```
 * "Après une fin de game, tu regardes la pub et lance une nouvelle partie"
-    ```feature.add_fusion_combo(max_dot_fusion=4)```
+    ```python
+    feature.add_fusion_combo(max_dot_fusion=4)
+    ```
 
 ## Prérequis
 * Python 3 (testé avec 3.7)
@@ -111,5 +119,5 @@ Créez une [nouvelle Issue](https://github.com/slavi010/random_dice_bot/issues/n
     pensez à mettre votre nom et votre email en haut du fichier.
     
 ## Clause de non responsabilité
-Personne à par vous êtes responssable responsable en cas de ban ou d'autres problêmes. 
+Personne à par vous êtes responssable responsable en cas de ban ou d'autres problèmes. 
 Vous l'utilisez en toute connaissance de cause, à vos risques et périls.
