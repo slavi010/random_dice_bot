@@ -13,7 +13,6 @@ class FeaturePlateau:
         self.plateau = plateau
 
         self.features = []
-        self.sub_features = []
 
     def start_features(self):
         for feature in self.features:
@@ -21,8 +20,8 @@ class FeaturePlateau:
         return self
 
     # 0
-    def add_fusion_sacrifice(self):
-        self.features.append(lambda: self.plateau.is_sacrifice_ready_to_merge(self.plateau.get_possible_fusion()))
+    def add_fusion_dice(self, dice: DiceColorEnum):
+        self.features.append(lambda: self.plateau.is_dice_ready_to_merge(self.plateau.get_possible_fusion(), dice))
         return self
 
     # 1
@@ -100,14 +99,7 @@ class FeaturePlateau:
     def callback_fusion_combo(self, max_dot_fusion=4):
         fusions = self.plateau.get_possible_fusion()
 
-        # # on supprime les fusions doublons
-        # for fusion_1 in fusions:
-        #     for fusion_2 in fusions:
-        #         if fusion_1[0] == fusion_2[1] and \
-        #                 fusion_1[1] == fusion_2[0]:
-        #             fusions.remove(fusion_2)
-
-        # on calcul le nombre de combo et de mimic pour chaque *
+        # on calcule le nombre de combo et de mimic pour chaque *
         nb_combos = [0 for i in range(7)]
         nb_mimic = [0 for i in range(7)]
 
@@ -119,7 +111,7 @@ class FeaturePlateau:
                     elif case.dice.type_dice == DiceColorEnum.MIMIC:
                         nb_mimic[case.dice.dot-1] += 1
 
-        # on fusion si min (2 combo + 1 mimic) ou (3 combo)
+        # on fusionne si min (2 combo + 1 mimic) ou (3 combo)
         for etoile in range(6):
             if nb_combos[etoile] >= 2 and nb_mimic[etoile] >= 1:
                 for fusion in fusions:

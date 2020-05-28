@@ -82,7 +82,7 @@ class Plateau:
         self.show(image)
 
     def scan(self):
-        """Met à jours les dés présents"""
+        """Met à jour les dés présents"""
         image = grab_image(box=(0, 0, self.screen_size[0], self.screen_size[1]))
 
         range_color = 15
@@ -212,10 +212,10 @@ class Plateau:
         cv2.imshow("show", img)
         cv2.waitKey(1)
 
-    def is_sacrifice_ready_to_merge(self, fusions):
+    def is_dice_ready_to_merge(self, fusions, dice: DiceColorEnum):
         for fusion in fusions:
-            if fusion[0].dice.type_dice == DiceColorEnum.SACRIFICIAL and \
-                    fusion[1].dice.type_dice == DiceColorEnum.SACRIFICIAL:
+            if fusion[0].dice.type_dice == dice and \
+                    fusion[1].dice.type_dice == dice:
                 self.do_fusion(fusion[0], fusion[1])
                 fusions.remove(fusion)
 
