@@ -1,4 +1,4 @@
-![Bot run gif](https://cdn.kapwing.com/final_5ecfd27cbecf9800154a81d1_48555.gi)
+![Bot run gif](https://cdn.kapwing.com/final_5ecfd27cbecf9800154a81d1_48555.gif)
 
 # Readme Language 
  - French / Français
