@@ -1,5 +1,17 @@
+[comment]: <> (#################################################################################)
+[comment]: <> (# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR    #)
+[comment]: <> (# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,      #)
+[comment]: <> (# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE   #)
+[comment]: <> (# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER        #)
+[comment]: <> (# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, #)
+[comment]: <> (# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE #)
+[comment]: <> (# SOFTWARE.                                                                     #)
+[comment]: <> (#################################################################################)
+[comment]: <> (# Contributors :)
+[comment]: <> (# Copyright \(c\) 2020 slavi010 pro@slavi.dev)
+
 # Random Dice Bot
-![Bot run gif](https://slavi.dev/nextcloud/index.php/s/ERAojSXKLewXn3f/preview)
+![Image](https://slavi.dev/nextcloud/index.php/s/ERAojSXKLewXn3f/preview)
 
 # Readme Language 
  - French / Français

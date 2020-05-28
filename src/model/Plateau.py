@@ -1,3 +1,18 @@
+#################################################################################
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR    #
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,      #
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE   #
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER        #
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, #
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE #
+# SOFTWARE.                                                                     #
+#################################################################################
+#
+# Contributors :
+# Copyright (c) 2020 slavi010 pro@slavi.dev
+#
+
+
 import random
 from operator import itemgetter
 from time import sleep
@@ -243,7 +258,6 @@ class Plateau:
                           (239, 173, 51), offset=30) or \
                not same_color(image[self.btn_coord_add_dice[1]][self.btn_coord_add_dice[0]],
                           (250, 250, 250), offset=6)
-
 
 
 def pil_to_cv2(image_pil):
