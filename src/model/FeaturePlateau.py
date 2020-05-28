@@ -63,7 +63,7 @@ class FeaturePlateau:
     def callback_add_dice(self, check_is_end=True, wait_time_sec=1):
         # self.plateau.scan()
         sleep(wait_time_sec)
-        if check_is_end and not self.plateau.is_end(image=grab_image(box=(0, 0, self.plateau.screen_size[0], self.plateau.screen_size[1]))):
+        if not check_is_end or not self.plateau.is_end(image=grab_image(box=(0, 0, self.plateau.screen_size[0], self.plateau.screen_size[1]))):
             self.plateau.add_dice()
 
     def callback_buy_shop(self, proba_buy_shop: float, idx_dices=None, min_dice_board=6):
@@ -142,18 +142,30 @@ class FeaturePlateau:
 
     def callback_auto_pub_and_start(self, ahk:AHK):
         if self.plateau.is_end(image=grab_image(box=(0, 0, self.plateau.screen_size[0], self.plateau.screen_size[1]))):
+            print("auto_pub_and_start")
             sleep(1)
-            print("auto")
             self.callback_add_dice(check_is_end=False)
             # attend chargement
+            print("attend chargement")
             sleep(10)
             if not self.plateau.is_coop_ready(grab_image(box=(0, 0, self.plateau.screen_size[0], self.plateau.screen_size[1]))):
                 # on regarde la pub
                 self.plateau.start_pub()
+                print("start pub")
                 sleep(2)
-                while self.plateau.is_coop_ready(grab_image(box=(0, 0, self.plateau.screen_size[0], self.plateau.screen_size[1]))):
+                win = ahk.active_window
+                while not self.plateau.is_coop_ready(grab_image(box=(0, 0, self.plateau.screen_size[0], self.plateau.screen_size[1]))):
+                    print("attente fin de pub")
                     sleep(2)
-                    ahk.key_press('Escape')
+                    # win.send('Escape')
+                    script = "Send, {Escape}\n" + \
+                             "Send, {Ctrl down}\n" + \
+                             "Send, {Backspace}\n" + \
+                             "Send, {Ctrl up}"
+                    ahk.run_script(script)
                     sleep(2)
-                self.plateau.start_coop()
-                sleep(15)
+                print("pub fini")
+            sleep(3)
+            print("start coop")
+            self.plateau.start_coop()
+            sleep(20)
