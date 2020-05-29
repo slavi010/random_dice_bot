@@ -68,3 +68,9 @@ if __name__ == '__main__':
 
         # we iterate one time all features
         plateau.feature.start_features()
+
+        # stop the bot with the Escape key
+        if ahk.key_state('Escape'):
+            break
+
+print("BOT IS OFF")
