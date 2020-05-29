@@ -79,7 +79,7 @@ Si ce n'est pas le cas, arrêter le bot/programme puis recommencer.
 ![Image board grid](https://slavi.dev/nextcloud/index.php/s/6GQXDiFcoZq6kCJ/preview)
 
 ### Arrêter le bot
-Actuellement, VOUS NE POUVEZ ARRETER LE BOT.
+Pour arrêter le programme, appuyer longuement sur la touche Echap.
 [#3](https://github.com/slavi010/random_dice_bot/issues/3)
 
 ### Skin de la carte
