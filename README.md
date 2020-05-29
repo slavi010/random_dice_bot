@@ -26,7 +26,7 @@ Il détecte le type de dé et sont nombre de point.
 Il est possible de specifier dans le code des actions tel que :
 * "Tu fusionnes toujours les sacrifices si possible"
     ```python
-    feature.add_fusion_dice(dice=DiceColorEnum.SACRIFICIAL)
+    feature.add_merge_dice(dice=DiceColorEnum.SACRIFICIAL)
     ```
 * "Tu as une probabilité de 5% d'acheter l'amélioration du 5eme dé si il y a au moins 8 dés sur le plateau"
     ```python
@@ -34,7 +34,7 @@ Il est possible de specifier dans le code des actions tel que :
     ```
 * "Tu fusionnes les combos de manière intelligente"
     ```python
-    feature.add_fusion_combo(max_dot_fusion=4)
+    feature.add_merge_combo(max_dot_merge=4)
     ```
 * "Après une fin de game, tu regardes la pub et lance une nouvelle partie"
     ```python

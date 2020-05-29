@@ -35,8 +35,8 @@ class FeaturePlateau:
         return self
 
     # 0
-    def add_fusion_dice(self, dice: DiceColorEnum):
-        self.features.append(lambda: self.plateau.is_dice_ready_to_merge(self.plateau.get_possible_fusion(), dice))
+    def add_merge_dice(self, dice: DiceColorEnum):
+        self.features.append(lambda: self.plateau.is_dice_ready_to_merge(self.plateau.get_possible_merge(), dice))
         return self
 
     # 1
@@ -56,8 +56,8 @@ class FeaturePlateau:
         return self
 
     # 5
-    def add_fusion_joker_to_other_dice(self, dice=None, min_joker=1, merge_all=True):
-        self.features.append(lambda: self.callback_fusion_joker_to_other_dice(dice, min_joker, merge_all))
+    def add_merge_joker_to_other_dice(self, dice=None, min_joker=1, merge_all=True):
+        self.features.append(lambda: self.callback_merge_joker_to_other_dice(dice, min_joker, merge_all))
         return self
 
     # 4
@@ -65,13 +65,13 @@ class FeaturePlateau:
         self.features.append(lambda: self.callback_add_dice())
         return self
 
-    # 5
+    # 6
     def add_auto_pub_and_start(self, ahk:AHK):
         self.features.append(lambda: self.callback_auto_pub_and_start(ahk=ahk))
         return self
 
-    def add_fusion_combo(self, max_dot_fusion=4):
-        self.features.append(lambda: self.callback_fusion_combo(max_dot_fusion=max_dot_fusion))
+    def add_merge_combo(self, max_dot_merge=4):
+        self.features.append(lambda: self.callback_merge_combo(max_dot_merge=max_dot_merge))
         return self
 
     def callback_add_dice(self, check_is_end=True, wait_time_sec=1):
@@ -92,19 +92,19 @@ class FeaturePlateau:
 
     def callback_merge_random_lower(self, dices=None, min_dice_present=15):
         if 15 - self.plateau.get_nb_cases_vide() >= min_dice_present:
-            fusions = self.plateau.get_possible_fusion()
-            if fusions is not None and len(fusions) > 0:
-                lower_fusion = fusions[0]
-                for fusion in fusions:
+            merges = self.plateau.get_possible_merge()
+            if merges is not None and len(merges) > 0:
+                lower_merge = merges[0]
+                for merge in merges:
                     # si bon dice à merge
-                    if dices is None or fusion[0].dice.type_dice in dices:
-                        if fusion[0].dice.dot < lower_fusion[0].dice.dot:
-                            lower_fusion = fusion
-                self.plateau.do_fusion(lower_fusion[0], lower_fusion[1])
-                fusions.remove(lower_fusion)
+                    if dices is None or merge.from_case.dice.type_dice in dices:
+                        if merge.from_case.dice < lower_merge.from_case.dice.dot:
+                            lower_merge = merge
+                self.plateau.do_merge(lower_merge)
+                merges.remove(lower_merge)
 
-    def callback_fusion_joker_to_other_dice(self, dice, min_joker=1, merge_all=True):
-        fusions = self.plateau.get_possible_fusion()
+    def callback_merge_joker_to_other_dice(self, dice, min_joker=1, merge_all=True):
+        merges = self.plateau.get_possible_merge()
 
         # get number sacrifice
         # on calcule le nombre de joker pour chaque *
@@ -113,20 +113,20 @@ class FeaturePlateau:
         for case_row in self.plateau.cases:
             for case in case_row:
                 if case.dice is not None:
-                    if case.dice.type_dice == DiceColorEnum.JOKER:
+                    if case == DiceColorEnum.JOKER:
                         nb_joker[case.dice.dot-1] += 1
 
-        for fusion in fusions:
-            if fusion[0].dice.type_dice == DiceColorEnum.JOKER and \
-                    fusion[1].dice.type_dice == dice and \
-                    nb_joker[fusion[0].dice.dot-1] >= min_joker:
-                self.plateau.do_fusion(fusion[0], fusion[1])
-                fusions.remove(fusion)
+        for merge in merges:
+            if merge.from_case == DiceColorEnum.JOKER and \
+                    merge.to_case == dice and \
+                    nb_joker[merge.from_case.dice.dot-1] >= min_joker:
+                self.plateau.do_merge(merge)
+                merges.remove(merge)
                 if not merge_all:
                     return
 
-    def callback_fusion_combo(self, max_dot_fusion=4):
-        fusions = self.plateau.get_possible_fusion()
+    def callback_merge_combo(self, max_dot_merge=4):
+        merges = self.plateau.get_possible_merge()
 
         # on calcule le nombre de combo et de mimic pour chaque *
         nb_combos = [0 for i in range(7)]
@@ -135,9 +135,9 @@ class FeaturePlateau:
         for case_row in self.plateau.cases:
             for case in case_row:
                 if case.dice is not None:
-                    if case.dice.type_dice == DiceColorEnum.COMBO:
+                    if case == DiceColorEnum.COMBO:
                         nb_combos[case.dice.dot-1] += 1
-                    elif case.dice.type_dice == DiceColorEnum.MIMIC:
+                    elif case == DiceColorEnum.MIMIC:
                         nb_mimic[case.dice.dot-1] += 1
 
         # on fusionne si min (2 combo + 1 mimic) ou (3 combo)
@@ -145,21 +145,21 @@ class FeaturePlateau:
         for etoile in range(6):
             if not flag_merge_done:
                 if nb_combos[etoile] >= 2 and nb_mimic[etoile] >= 1:
-                    for fusion in fusions:
-                        if fusion[0].dice.type_dice == DiceColorEnum.COMBO and \
-                                fusion[1].dice.type_dice == DiceColorEnum.MIMIC and \
-                                fusion[0].dice.dot == etoile+1 and \
-                                fusion[0].dice.dot <= max_dot_fusion:
-                            self.plateau.do_fusion(fusion[0], fusion[1])
+                    for merge in merges:
+                        if merge.from_case == DiceColorEnum.COMBO and \
+                                merge.to_case == DiceColorEnum.MIMIC and \
+                                merge.from_case == etoile+1 and \
+                                merge.from_case <= max_dot_merge:
+                            self.plateau.do_merge(merge)
                             break
                     flag_merge_done = True
                 elif nb_combos[etoile] >= 3:
-                    for fusion in fusions:
-                        if fusion[0].dice.type_dice == DiceColorEnum.COMBO and \
-                                fusion[1].dice.type_dice == DiceColorEnum.COMBO and \
-                                fusion[0].dice.dot == etoile+1 and \
-                                fusion[0].dice.dot <= max_dot_fusion:
-                            self.plateau.do_fusion(fusion[0], fusion[1])
+                    for merge in merges:
+                        if merge.from_case == DiceColorEnum.COMBO and \
+                                merge.to_case == DiceColorEnum.COMBO and \
+                                merge.from_case == etoile+1 and \
+                                merge.from_case <= max_dot_merge:
+                            self.plateau.do_merge(merge)
                             break
                     flag_merge_done = True
 
@@ -191,4 +191,7 @@ class FeaturePlateau:
             sleep(3)
             print("start coop")
             self.plateau.start_coop()
-            sleep(20)
+            sleep(12)
+            for i in range(10):
+                self.plateau.add_dice()
+                sleep(0.1)

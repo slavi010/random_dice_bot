@@ -29,6 +29,7 @@ from ahk import AHK
 
 from src.model.Dice import Dice
 from src.model.DiceEnum import DiceColorEnum, DiceEnum
+from src.model.Merge import Merge
 from src.model.Utils import same_color, same_color_hsv
 
 
@@ -57,13 +58,13 @@ class Plateau:
                 (x_1 - int(width_dice * 4 / 5) + i * int(width_dice * 1.43), y_2 + int(height_dice * 4.3)))
         self.btn_coord_coop_mode = (x_2 + int(width_dice/5), y_2 + int(height_dice * 2))
         self.btn_coord_coop_mode_pub = (x_2 + int(width_dice), y_2 + int(height_dice * 2))
-        self.btn_coord_coop_mode_quick_match = (x_2 + int(width_dice), y_2 - int(height_dice))
+        self.btn_coord_coop_mode_quick_match = (x_2, y_2 - int(height_dice))
 
         # check fin de manche
         self.coord_end = (x_1 + int(width_dice*8/5), y_1 - int(height_dice))
 
     def scan_many_time(self, nb_scan, time_between_two_scan_ms=10):
-        occurence_dice = [[] for i in range(15)]
+        occurence_dice = [[] for i in range(15)] # [[(dice, occurence)]]
         for i in range(nb_scan):
             sleep(time_between_two_scan_ms/1000)
             self.scan()
@@ -75,8 +76,7 @@ class Plateau:
                         # on cherche si le dé est déjà présent
                         flag_dice_deja_present = False
                         for dice_and_occurence in occurence_dice[case_y*5 + case_x]:
-                            if dice_and_occurence[0].dot == self.cases[case_y][case_x].dice.dot and \
-                                    dice_and_occurence[0].type_dice == self.cases[case_y][case_x].dice.type_dice:
+                            if dice_and_occurence[0] == self.cases[case_y][case_x].dice:
                                 dice_and_occurence[1] += 1
                                 flag_dice_deja_present = True
                         # l'occurence n'est pas encore présente alors on la crée
@@ -148,32 +148,31 @@ class Plateau:
             raise Exception("dice position need to be in range of 1 to 5")
         self.ahk.click(x=self.btn_coord_buy_shop[dice - 1][0], y=self.btn_coord_buy_shop[dice - 1][1], blocking=False)
 
-    def do_fusion(self, from_case: Case, to_case: Case):
-        self.ahk.mouse_move(x=from_case.x, y=from_case.y)
-        self.ahk.mouse_drag(x=to_case.x, y=to_case.y)
+    def do_merge(self, merge: Merge):
+        self.ahk.mouse_move(x=merge.from_case.x, y=merge.from_case.y)
+        self.ahk.mouse_drag(x=merge.to_case.x, y=merge.to_case.y)
 
         # on reposition la sourie en IDLE
         self.ahk.mouse_move(x=self.cases[0][0].x - self.cases[0][0].width,
                             y=self.cases[0][0].y - self.cases[0][0].height)
 
-    def get_possible_fusion(self, shuffle=True):
-        fusions = []
+    def get_possible_merge(self, shuffle=True):
+        merges = []
         cases = np.reshape(self.cases.copy(), 15)
 
         for idx_1 in range(15):
             if cases[idx_1].dice is not None:
                 for idx_2 in range(15):
                     if cases[idx_2].dice is not None and \
-                            cases[idx_1].dice.dot == cases[idx_2].dice.dot and \
-                            (cases[idx_1].dice.type_dice == cases[idx_2].dice.type_dice or
-                             cases[idx_1].dice.type_dice in [DiceColorEnum.JOKER, DiceColorEnum.MIMIC] or
-                             cases[idx_2].dice.type_dice == DiceColorEnum.MIMIC) and \
-                            (cases[idx_1].x != cases[idx_2].x or
-                             cases[idx_1].y != cases[idx_2].y):
-                        fusions.append((cases[idx_1], cases[idx_2]))
+                            cases[idx_1] == cases[idx_2].dice.dot and \
+                            (cases[idx_1].dice.type_equal(cases[idx_2].dice) or
+                             cases[idx_1] == [DiceColorEnum.JOKER, DiceColorEnum.MIMIC] or
+                             cases[idx_2] == DiceColorEnum.MIMIC) and \
+                            (not cases[idx_1] == cases[idx_2]):
+                        merges.append(Merge(cases[idx_1], cases[idx_2]))
         if shuffle:
-            random.shuffle(fusions)
-        return fusions
+            random.shuffle(merges)
+        return merges
 
     def show(self, image_raw):
         # on redimensionne l'image
@@ -227,18 +226,18 @@ class Plateau:
         cv2.imshow("show", img)
         cv2.waitKey(1)
 
-    def is_dice_ready_to_merge(self, fusions, dice: DiceColorEnum):
-        for fusion in fusions:
-            if fusion[0].dice.type_dice == dice and \
-                    fusion[1].dice.type_dice == dice:
-                self.do_fusion(fusion[0], fusion[1])
-                fusions.remove(fusion)
+    def is_dice_ready_to_merge(self, merges, dice: DiceColorEnum):
+        for merge in merges:
+            if merge.from_case == dice and \
+                    merge.to_case == dice:
+                self.do_merge(merge)
+                merges.remove(merge)
 
                 # on supprime la fusion inverse
-                for f in fusions:
-                    if fusion[0] == f[1] and \
-                            fusion[1] == f[0]:
-                        fusions.remove(f)
+                for m in merges:
+                    if merge.from_case == m.to_case and \
+                            merge.to_case == m.from_case:
+                        merges.remove(m)
                         break
 
     def is_coop_ready(self, image):
