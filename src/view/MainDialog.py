@@ -29,11 +29,11 @@ class MainDialog:
 
         # Frame
         self.frm_deck = tk.Frame(self.root, width=300, height=60, pady=3)
-        # self.frm_feature = tk.Frame(self.root, width=300, height=60, pady=3)
+        self.frm_feature = tk.Frame(self.root, width=300, height=60, pady=3)
 
         # Frame grid
         self.frm_deck.grid(row=0, sticky="ew")
-        # self.frm_feature.grid(row=1, sticky="ew")
+        self.frm_feature.grid(row=1, sticky="ew")
 
         # frm_deck widgets
         self.dices = [DiceColorEnum.JOKER, DiceColorEnum.GROWTH, DiceColorEnum.MIMIC, DiceColorEnum.SACRIFICIAL,
@@ -53,7 +53,7 @@ class MainDialog:
             dice_canvas.grid(row=0, column=idx)
 
         # frm_feature widgets
-        # self.sub_feature_frms = []
+        self.sub_feature_frms = []
 
         # load all dices images
         self.all_dice_images = {}
@@ -129,7 +129,14 @@ class SelectDiceDialog:
             self.root.destroy()
 
 
-# class AbstractFeatureView()
+# class AbstractFeatureView:
+#     def __init__(self):
+#         passxx
+#
+#     def get_frm(self):
+#         pass
+#
+#     def get_
 
 
 root = tk.Tk()
