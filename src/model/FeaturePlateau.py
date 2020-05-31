@@ -70,8 +70,8 @@ class FeaturePlateau:
         self.features.append(lambda: self.callback_auto_pub_and_start(ahk=ahk))
         return self
 
-    def add_merge_combo(self, max_dot_merge=4):
-        self.features.append(lambda: self.callback_merge_combo(max_dot_merge=max_dot_merge))
+    def add_merge_combo(self, max_dot_merge=4, min_dice_present=8):
+        self.features.append(lambda: self.callback_merge_combo(max_dot_merge=max_dot_merge, min_dice_present=min_dice_present))
         return self
 
     def callback_add_dice(self, check_is_end=True, wait_time_sec=1):
@@ -125,7 +125,7 @@ class FeaturePlateau:
                 if not merge_all:
                     return
 
-    def callback_merge_combo(self, max_dot_merge=4):
+    def callback_merge_combo(self, max_dot_merge=4, min_dice_present=10):
         merges = self.plateau.get_possible_merge()
 
         # on calcule le nombre de combo et de mimic pour chaque *
@@ -140,28 +140,37 @@ class FeaturePlateau:
                     elif case == DiceColorEnum.MIMIC:
                         nb_mimic[case.dice.dot-1] += 1
 
-        # on fusionne si min (2 combo + 1 mimic) ou (3 combo)
-        flag_merge_done = False
-        for etoile in range(6):
-            if not flag_merge_done:
-                if nb_combos[etoile] >= 2 and nb_mimic[etoile] >= 1:
-                    for merge in merges:
-                        if merge.from_case == DiceColorEnum.COMBO and \
-                                merge.to_case == DiceColorEnum.MIMIC and \
-                                merge.from_case == etoile+1 and \
-                                merge.from_case <= max_dot_merge:
-                            self.plateau.do_merge(merge)
-                            break
-                    flag_merge_done = True
-                elif nb_combos[etoile] >= 3:
-                    for merge in merges:
-                        if merge.from_case == DiceColorEnum.COMBO and \
-                                merge.to_case == DiceColorEnum.COMBO and \
-                                merge.from_case == etoile+1 and \
-                                merge.from_case <= max_dot_merge:
-                            self.plateau.do_merge(merge)
-                            break
-                    flag_merge_done = True
+        # Total des points
+        # total_dot = 0
+        # for i in range(7):
+        #     total_dot += nb_combos[i] * (i + 1)
+
+        if 15 - self.plateau.get_nb_cases_vide() >= min_dice_present:
+            # on fusionne si min (2 combo + 1 mimic) ou (3 combo)
+            flag_merge_done = False
+            for etoile in range(6):
+                if not flag_merge_done:
+                    if nb_combos[etoile] >= 2 and nb_mimic[etoile] >= 1:
+                        for merge in merges:
+                            if ((merge.from_case == DiceColorEnum.COMBO and
+                                        merge.to_case == DiceColorEnum.MIMIC) or
+                                    (merge.from_case == DiceColorEnum.MIMIC and
+                                        merge.to_case == DiceColorEnum.COMBO)
+                                    ) and \
+                                    merge.from_case == etoile+1 and \
+                                    merge.from_case <= max_dot_merge:
+                                self.plateau.do_merge(merge)
+                                break
+                        flag_merge_done = True
+                    elif nb_combos[etoile] >= 3 and nb_mimic[etoile]  == 0:
+                        for merge in merges:
+                            if merge.from_case == DiceColorEnum.COMBO and \
+                                    merge.to_case == DiceColorEnum.COMBO and \
+                                    merge.from_case == etoile+1 and \
+                                    merge.from_case <= max_dot_merge:
+                                self.plateau.do_merge(merge)
+                                break
+                        flag_merge_done = True
 
     def callback_auto_pub_and_start(self, ahk:AHK):
         if self.plateau.is_end(image=grab_image(box=(0, 0, self.plateau.screen_size[0], self.plateau.screen_size[1]))):

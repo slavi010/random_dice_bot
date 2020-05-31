@@ -59,6 +59,7 @@ class Plateau:
         self.btn_coord_coop_mode = (x_2 + int(width_dice/5), y_2 + int(height_dice * 2))
         self.btn_coord_coop_mode_pub = (x_2 + int(width_dice), y_2 + int(height_dice * 2))
         self.btn_coord_coop_mode_quick_match = (x_2, y_2 - int(height_dice))
+        self.btn_coord_coop_mode_try_again_ok = (x_2 - int(width_dice)*2, y_2 - int(height_dice))
 
         # check fin de manche
         self.coord_end = (x_1 + int(width_dice*8/5), y_1 - int(height_dice))
@@ -246,6 +247,12 @@ class Plateau:
 
     def start_pub(self):
         self.ahk.click(x=self.btn_coord_coop_mode_pub[0], y=self.btn_coord_coop_mode_pub[1], blocking=False)
+        sleep(1)upda
+        # si try again
+        # if ()
+        # self.ahk.mouse_move(x=self.btn_coord_coop_mode_try_again_ok[0], y=self.btn_coord_coop_mode_try_again_ok[1])
+        # sleep(20)
+
 
     def start_coop(self):
         self.ahk.click(x=self.btn_coord_coop_mode[0], y=self.btn_coord_coop_mode[1], blocking=False)

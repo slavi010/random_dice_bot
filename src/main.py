@@ -41,7 +41,7 @@ if __name__ == '__main__':
         .add_merge_dice(dice=DiceColorEnum.SACRIFICIAL) \
         .add_merge_dice(dice=DiceColorEnum.METASTASIS) \
         .add_buy_shop(proba_buy_shop=0.05, idx_dices=[5], min_dice_board=8) \
-        .add_merge_combo(max_dot_merge=4) \
+        .add_merge_combo(max_dot_merge=4, min_dice_present=12) \
         .add_merge_random_lower(dices=[DiceColorEnum.SACRIFICIAL,
                                        DiceColorEnum.MIMIC],
                                 min_dice_present=15) \

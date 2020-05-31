@@ -154,12 +154,12 @@ class Case:
                 (self.x + x_offset, self.y + y_offset)]
 
     def is_star(self, image):
-        x_offset = int(self.width / 6.8)
-        y_offset = int(self.height / 6.8)
+        x_offset = int(self.width / 6)
+        y_offset = int(self.height / 6)
         image = image[self.y - y_offset:self.y + y_offset, self.x - x_offset:self.x + x_offset]
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-        edges = cv2.Canny(gray, 100, 100 * 3)
+        edges = cv2.Canny(gray, 150, 150 * 3)
 
         # on prend les contours
         ret, thresh = cv2.threshold(edges.copy(),
@@ -178,6 +178,7 @@ class Case:
                     area > x_offset * y_offset * 4 / 2:
                 cv2.imshow("cv2", image)
                 cv2.waitKey(1)
+                print("ETOILE " + self.dice.type_dice)
                 return True
 
         return False
