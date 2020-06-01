@@ -1,0 +1,150 @@
+#################################################################################
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR    #
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,      #
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE   #
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER        #
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, #
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE #
+# SOFTWARE.                                                                     #
+#################################################################################
+#
+# Contributors :
+# Copyright (c) 2020 slavi010 pro@slavi.dev
+#
+from typing import List
+import tkinter as tk
+
+from src.model.DiceEnum import DiceColorEnum
+from src.view.Observer import Observable, Observer
+
+
+class Deck(Observable):
+    _observers: List[Observer] = []
+
+    dices: List[DiceColorEnum] = []
+
+    def __init__(self, dices_default):
+        self.dices = dices_default
+
+    def attach(self, observer: Observer) -> None:
+        self._observers.append(observer)
+
+    def detach(self, observer: Observer) -> None:
+        self._observers.remove(observer)
+
+    def notify(self) -> None:
+        for observer in self._observers:
+            observer.update(self)
+
+
+class ListDice(Observer):
+    def __init__(self, root: tk.Tk, deck: Deck, lbl_text: str):
+        self.root = root
+        self.deck = deck
+        self.lbl_text = lbl_text
+
+        # Frame
+        self.frm = tk.Frame(self.root, width=2, height=60)
+
+        # widgets
+        self.lbl = tk.Label(self.frm, text=self.lbl_text, anchor="w")
+        self.lst_dices = self.lst_dices = tk.Listbox(self.frm, selectmode=tk.MULTIPLE, width=20, height=5)
+        self.update(deck)
+
+        # widgets layouts
+        self.lbl.pack()
+        self.lst_dices.pack()
+
+    def get_selected_dices(self):
+        return [self.deck.dices[idx_dice_deck] for idx_dice_deck in self.lst_dices.curselection()]
+
+    def update(self, observable: Observable) -> None:
+        assert isinstance(observable, Deck)
+
+        self.lst_dices.delete(0, tk.END)
+        for dice in observable.dices:
+            self.lst_dices.insert(tk.END, dice.name)
+
+
+class FieldInt:
+    def __init__(self, root: tk.Tk, lbl_text: str, default_value: int, min_value: int, max_value: int):
+        assert min_value <= default_value <= max_value
+
+        self.root = root
+        self.lbl_text = lbl_text
+        self.default_value = default_value
+        self.min_value = min_value
+        self.max_value = max_value
+
+        # Frame
+        self.frm = tk.Frame(self.root)
+
+        # widgets
+        self.lbl = tk.Label(self.frm, text=self.lbl_text, anchor="w")
+        self.entry_var = tk.IntVar(self.frm, default_value)
+        self.entry = tk.Entry(self.frm, textvariable=self.entry_var)
+
+        # widgets layouts
+        self.lbl.grid(row=0, column=0)
+        self.entry.grid(row=0, column=1)
+
+    def get_value(self):
+        value = self.entry_var.get()
+        if value < self.min_value:
+            return self.min_value
+        elif value > self.max_value:
+            return self.max_value
+        return value
+
+
+class FieldRadioBinary:
+    def __init__(self, root: tk.Tk, lbl_main: str, lbl1: str, lbl2: str):
+        self.root = root
+        self.lbl_main_text = lbl_main
+        self.lbl1_text = lbl1
+        self.lbl2_text = lbl2
+
+        # Frame
+        self.frm = tk.Frame(self.root)
+
+        # widgets
+        self.lbl_main = tk.Label(self.frm, text=self.lbl_main_text, anchor="w")
+
+        self.radio_val = range(2)  # 0 = first, 1 = second
+        self.radio_etiqs = [self.lbl1_text, self.lbl2_text]
+        self.radio_varGr = tk.IntVar(self.frm, self.radio_val[0])
+        self.radios = []
+        for i in range(2):
+            b = tk.Radiobutton(self.frm,
+                               variable=self.radio_varGr,
+                               text=self.radio_etiqs[i],
+                               value=self.radio_val[i])
+            self.radios.append(b)
+
+        # widgets layouts
+        self.lbl_main.grid(row=0, column=0)
+        self.radios[0].grid(row=0, column=2)
+        self.radios[1].grid(row=0, column=4)
+
+    def get_value(self):
+        # return 1 or 2
+        return self.radio_varGr.get() + 1
+
+
+root = tk.Tk()
+deck = Deck([DiceColorEnum.JOKER,
+             DiceColorEnum.GROWTH,
+             DiceColorEnum.MIMIC,
+             DiceColorEnum.SACRIFICIAL,
+             DiceColorEnum.COMBO])
+
+lst = ListDice(root, deck, "from")
+deck.attach(lst)
+lst.frm.pack()
+
+fld_int = FieldInt(root, "bonjour", 5, 1, 15)
+fld_int.frm.pack()
+fld_rad = FieldRadioBinary(root, "main", "lbl", "lb2")
+fld_rad.frm.pack()
+
+root.mainloop()

@@ -21,6 +21,7 @@ from ahk import AHK
 
 from src.model.DiceEnum import DiceColorEnum
 from src.model.Plateau import Plateau
+from src.view.Deck import Deck
 
 
 class MainDialog:
@@ -38,8 +39,11 @@ class MainDialog:
         self.frm_feature.grid(row=1, sticky="ew")
 
         # frm_deck widgets
-        self.dices = [DiceColorEnum.JOKER, DiceColorEnum.GROWTH, DiceColorEnum.MIMIC, DiceColorEnum.SACRIFICIAL,
-                      DiceColorEnum.COMBO]
+        self.deck = Deck([DiceColorEnum.JOKER,
+                          DiceColorEnum.GROWTH,
+                          DiceColorEnum.MIMIC,
+                          DiceColorEnum.SACRIFICIAL,
+                          DiceColorEnum.COMBO])
         self.dices_canvas = []
         for i in range(5):
             canvas = tk.Canvas(self.frm_deck, width=50, height=50)
@@ -75,7 +79,7 @@ class MainDialog:
         for idx, dice_canvas in enumerate(self.dices_canvas):
             dice_canvas.delete("all")
             dice_canvas.create_image(0, 0, anchor="nw",
-                                     image=self.all_dice_images[self.dices[idx]])
+                                     image=self.all_dice_images[self.deck.dices[idx]])
 
     def callback_change_dice_1(self, event):
         self.change_dice_dialog(0)
@@ -126,17 +130,17 @@ class SelectDiceDialog:
 
             flag_dice_already_in_deck = False
             idx_dice = 0
-            for idx, dice in enumerate(self.main_dialog.dices):
+            for idx, dice in enumerate(self.main_dialog.deck.dices):
                 if dice == type_dice:
                     flag_dice_already_in_deck = True
                     idx_dice = idx
                     break
 
             if flag_dice_already_in_deck:
-                self.main_dialog.dices[idx_dice] = self.main_dialog.dices[self.index_dice_deck]
-                self.main_dialog.dices[self.index_dice_deck] = type_dice
+                self.main_dialog.deck.dices[idx_dice] = self.main_dialog.deck.dices[self.index_dice_deck]
+                self.main_dialog.deck.dices[self.index_dice_deck] = type_dice
             else:
-                self.main_dialog.dices[self.index_dice_deck] = type_dice
+                self.main_dialog.deck.dices[self.index_dice_deck] = type_dice
 
             self.main_dialog.update_image_dices()
             self.root.destroy()
