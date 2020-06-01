@@ -17,8 +17,10 @@ from tkinter import ttk
 import cv2
 import numpy as np
 from PIL import ImageTk, Image
+from ahk import AHK
 
 from src.model.DiceEnum import DiceColorEnum
+from src.model.Plateau import Plateau
 
 
 class MainDialog:
@@ -54,6 +56,12 @@ class MainDialog:
 
         # frm_feature widgets
         self.sub_feature_frms = []
+        self.sub_feature_frms.append(MergeDiceFeatureView(self.frm_feature))
+        self.sub_feature_frms.append(BuyUpgradeFeatureView(self.frm_feature))
+
+        # frm_feature widgets layouts
+        # self.update_frm_feature()
+
 
         # load all dices images
         self.all_dice_images = {}
@@ -88,6 +96,11 @@ class MainDialog:
         new = tk.Toplevel(self.root)
         new.grab_set()
         SelectDiceDialog(new, self, index_dice_deck)
+
+    def update_frm_feature(self):
+        for idx, sub_feature_frm in enumerate(self.sub_feature_frms):
+            sub_feature_frm.get_frm().grid_forget()
+            sub_feature_frm.get_frm().grid(row=idx, column=0)
 
 
 class SelectDiceDialog:
@@ -129,18 +142,97 @@ class SelectDiceDialog:
             self.root.destroy()
 
 
-# class AbstractFeatureView:
-#     def __init__(self):
-#         passxx
-#
-#     def get_frm(self):
-#         pass
-#
-#     def get_
+class AbstractFeatureView:
+    def __init__(self, root):
+        self.root = root
+
+        # Frame
+        self.frm = tk.Frame(self.root, width=2, height=60)
+        self.frm_lbl = tk.Frame(self.frm, width=2, height=60)
+        self.frm_option = tk.Frame(self.frm, width=2, height=60)
+
+        # Frame grid
+        self.frm_lbl.pack()
+        self.frm_option.pack()
+
+        # frm widgets
+        self.lbl_name_feature = tk.Label(self.frm_lbl, text="default", anchor="w", font='Helvetica 12 bold')
+
+        # frm widgets layout
+        self.lbl_name_feature.pack()
+
+    def get_frm(self):
+        pass
+
+
+class MergeDiceFeatureView(AbstractFeatureView):
+    """Merge dice"""
+    def __init__(self, root):
+        super().__init__(root)
+
+        # change name label
+        self.lbl_name_feature['text'] = "Merge dice"
+
+        # widgets
+        # dices
+        self.lbx_dices_value = tk.StringVar()
+        self.lbx_dices = ttk.Combobox(self.frm_option,
+                                      textvariable=self.lbx_dices_value,
+                                      values=[name for name, member in DiceColorEnum.__members__.items()],
+                                      state='readonly')
+        self.lbx_dices.current(0)
+
+        # widgets layouts
+        self.lbx_dices.grid(row=0, column=1)
+
+    def get_frm(self):
+        return self.frm
+
+
+class BuyUpgradeFeatureView(AbstractFeatureView):
+    """Merge dice"""
+    def __init__(self, root):
+        super().__init__(root)
+
+        # change name label
+        self.lbl_name_feature['text'] = "Buy upgrade"
+
+        # widgets
+        # proba buy
+        self.lbl_proba_buy = tk.Label(self.frm_option, text="Proba buy shop (%) :")
+        self.entry_var_proba_buy = tk.IntVar(self.frm_option, 5)
+        self.entry_proba_buy = tk.Entry(self.frm_option, textvariable=self.entry_var_proba_buy)
+        # dices index
+        self.lbl_dices_idx = tk.Label(self.frm_option, text="Index dices to buy :")
+        self.entry_var_dices_idx = tk.StringVar(self.frm_option, "5")
+        self.entry_dices_idx = tk.Entry(self.frm_option, textvariable=self.entry_var_dices_idx)
+        # min dice board
+        self.lbl_min_dice_board = tk.Label(self.frm_option, text="Min dice board :")
+        self.entry_var_min_dice_board = tk.IntVar(self.frm_option, 8)
+        self.entry_min_dice_board = tk.Entry(self.frm_option, textvariable=self.entry_var_min_dice_board)
+
+        # widgets layouts
+        # labels
+        self.lbl_proba_buy.grid(row=0, column=0)
+        self.lbl_dices_idx.grid(row=1, column=0)
+        self.lbl_min_dice_board.grid(row=2, column=0)
+        # entrys
+        self.entry_proba_buy.grid(row=0, column=1)
+        self.entry_dices_idx.grid(row=1, column=1)
+        self.entry_min_dice_board.grid(row=2, column=1)
+
+    def get_frm(self):
+        return self.frm
+
+
 
 
 root = tk.Tk()
+ahk = AHK()
+# plateau = Plateau(ahk)
+
 main_dialog = MainDialog(root)
 main_dialog.update_image_dices()
+main_dialog.update_frm_feature()
 
 root.mainloop()
