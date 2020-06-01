@@ -247,7 +247,7 @@ class Plateau:
 
     def start_pub(self):
         self.ahk.click(x=self.btn_coord_coop_mode_pub[0], y=self.btn_coord_coop_mode_pub[1], blocking=False)
-        sleep(1)upda
+        sleep(1)
         # si try again
         # if ()
         # self.ahk.mouse_move(x=self.btn_coord_coop_mode_try_again_ok[0], y=self.btn_coord_coop_mode_try_again_ok[1])

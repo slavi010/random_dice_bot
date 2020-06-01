@@ -258,7 +258,7 @@ def is_dots_same_color(dots_color):
         if not (dots_color[dot_idx][0] > 230 and dots_color[dot_idx][1] > 230 and dots_color[dot_idx][2] > 230):
             # pas blanc
             for j in range(dot_idx + 1, len(dots_color)):
-                if same_color(dots_color[dot_idx], dots_color[j], offset=40):
+                if same_color(dots_color[dot_idx], dots_color[j], offset=60):
                     return True
 
     return False
