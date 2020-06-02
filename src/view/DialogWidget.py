@@ -11,34 +11,18 @@
 # Contributors :
 # Copyright (c) 2020 slavi010 pro@slavi.dev
 #
-from typing import List
 import tkinter as tk
+from typing import Optional
 
-from src.model.DiceEnum import DiceColorEnum
-from src.view.Observer import Observable, Observer
-
-
-class Deck(Observable):
-    _observers: List[Observer] = []
-
-    dices: List[DiceColorEnum] = []
-
-    def __init__(self, dices_default):
-        self.dices = dices_default
-
-    def attach(self, observer: Observer) -> None:
-        self._observers.append(observer)
-
-    def detach(self, observer: Observer) -> None:
-        self._observers.remove(observer)
-
-    def notify(self) -> None:
-        for observer in self._observers:
-            observer.update(self)
+from src.view.Deck import Deck
+from src.view.Observer import Observer, Observable
 
 
 class ListDice(Observer):
-    def __init__(self, root: tk.Tk, deck: Deck, lbl_text: str):
+    """
+    A widget list where you can select dices from a specific Deck
+    """
+    def __init__(self, root, deck: Deck, lbl_text: str, dices_index_selected: Optional[list]):
         self.root = root
         self.deck = deck
         self.lbl_text = lbl_text
@@ -48,8 +32,10 @@ class ListDice(Observer):
 
         # widgets
         self.lbl = tk.Label(self.frm, text=self.lbl_text, anchor="w")
-        self.lst_dices = self.lst_dices = tk.Listbox(self.frm, selectmode=tk.MULTIPLE, width=20, height=5)
+        self.lst_dices = tk.Listbox(self.frm, selectmode=tk.MULTIPLE, exportselection=0, width=20, height=5)
         self.update(deck)
+        for idx_dices in dices_index_selected:
+            self.lst_dices.select_set(idx_dices)
 
         # widgets layouts
         self.lbl.pack()
@@ -67,13 +53,16 @@ class ListDice(Observer):
 
 
 class FieldInt:
-    def __init__(self, root: tk.Tk, lbl_text: str, default_value: int, min_value: int, max_value: int):
+    """
+    A int field + label with min/max.
+    """
+    def __init__(self, root, lbl_text: str, min_value: int, default_value: int, max_value: int):
         assert min_value <= default_value <= max_value
 
         self.root = root
         self.lbl_text = lbl_text
-        self.default_value = default_value
         self.min_value = min_value
+        self.default_value = default_value
         self.max_value = max_value
 
         # Frame
@@ -98,7 +87,10 @@ class FieldInt:
 
 
 class FieldRadioBinary:
-    def __init__(self, root: tk.Tk, lbl_main: str, lbl1: str, lbl2: str):
+    """
+    2 radio buttons, like a check box
+    """
+    def __init__(self, root, lbl_main: str, lbl1: str, lbl2: str, default: int):
         self.root = root
         self.lbl_main_text = lbl_main
         self.lbl1_text = lbl1
@@ -112,7 +104,7 @@ class FieldRadioBinary:
 
         self.radio_val = range(2)  # 0 = first, 1 = second
         self.radio_etiqs = [self.lbl1_text, self.lbl2_text]
-        self.radio_varGr = tk.IntVar(self.frm, self.radio_val[0])
+        self.radio_varGr = tk.IntVar(self.frm, self.radio_val[default-1])
         self.radios = []
         for i in range(2):
             b = tk.Radiobutton(self.frm,
@@ -127,24 +119,7 @@ class FieldRadioBinary:
         self.radios[1].grid(row=0, column=4)
 
     def get_value(self):
-        # return 1 or 2
+        """
+        :return: 1 or 2
+        """
         return self.radio_varGr.get() + 1
-
-
-root = tk.Tk()
-deck = Deck([DiceColorEnum.JOKER,
-             DiceColorEnum.GROWTH,
-             DiceColorEnum.MIMIC,
-             DiceColorEnum.SACRIFICIAL,
-             DiceColorEnum.COMBO])
-
-lst = ListDice(root, deck, "from")
-deck.attach(lst)
-lst.frm.pack()
-
-fld_int = FieldInt(root, "bonjour", 5, 1, 15)
-fld_int.frm.pack()
-fld_rad = FieldRadioBinary(root, "main", "lbl", "lb2")
-fld_rad.frm.pack()
-
-root.mainloop()

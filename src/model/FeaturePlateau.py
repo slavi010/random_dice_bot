@@ -15,6 +15,7 @@
 
 import random
 from time import sleep
+from typing import Union
 
 import numpy as np
 from ahk import AHK
@@ -66,7 +67,7 @@ class FeaturePlateau:
         return self
 
     # 6
-    def add_auto_pub_and_start(self, ahk:AHK):
+    def add_auto_pub_and_start(self, ahk: AHK):
         self.features.append(lambda: self.callback_auto_pub_and_start(ahk=ahk))
         return self
 
@@ -77,7 +78,8 @@ class FeaturePlateau:
     def callback_add_dice(self, check_is_end=True, wait_time_sec=1):
         # self.plateau.scan()
         # sleep(wait_time_sec)
-        if not check_is_end or not self.plateau.is_end(image=grab_image(box=(0, 0, self.plateau.screen_size[0], self.plateau.screen_size[1]))):
+        if not check_is_end or not self.plateau.is_end(
+                image=grab_image(box=(0, 0, self.plateau.screen_size[0], self.plateau.screen_size[1]))):
             self.plateau.add_dice()
 
     def callback_buy_shop(self, proba_buy_shop: float, idx_dices=None, min_dice_board=6):
@@ -114,12 +116,12 @@ class FeaturePlateau:
             for case in case_row:
                 if case.dice is not None:
                     if case == DiceColorEnum.JOKER:
-                        nb_joker[case.dice.dot-1] += 1
+                        nb_joker[case.dice.dot - 1] += 1
 
         for merge in merges:
             if merge.from_case == DiceColorEnum.JOKER and \
                     merge.to_case == dice and \
-                    nb_joker[merge.from_case.dice.dot-1] >= min_joker:
+                    nb_joker[merge.from_case.dice.dot - 1] >= min_joker:
                 self.plateau.do_merge(merge)
                 merges.remove(merge)
                 if not merge_all:
@@ -136,9 +138,9 @@ class FeaturePlateau:
             for case in case_row:
                 if case.dice is not None:
                     if case == DiceColorEnum.COMBO:
-                        nb_combos[case.dice.dot-1] += 1
+                        nb_combos[case.dice.dot - 1] += 1
                     elif case == DiceColorEnum.MIMIC:
-                        nb_mimic[case.dice.dot-1] += 1
+                        nb_mimic[case.dice.dot - 1] += 1
 
         # on fusionne si min (2 combo + 1 mimic) ou (3 combo)
         flag_merge_done = False
@@ -148,7 +150,7 @@ class FeaturePlateau:
                     for merge in merges:
                         if merge.from_case == DiceColorEnum.COMBO and \
                                 merge.to_case == DiceColorEnum.MIMIC and \
-                                merge.from_case == etoile+1 and \
+                                merge.from_case == etoile + 1 and \
                                 merge.from_case <= max_dot_merge:
                             self.plateau.do_merge(merge)
                             break
@@ -157,13 +159,13 @@ class FeaturePlateau:
                     for merge in merges:
                         if merge.from_case == DiceColorEnum.COMBO and \
                                 merge.to_case == DiceColorEnum.COMBO and \
-                                merge.from_case == etoile+1 and \
+                                merge.from_case == etoile + 1 and \
                                 merge.from_case <= max_dot_merge:
                             self.plateau.do_merge(merge)
                             break
                     flag_merge_done = True
 
-    def callback_auto_pub_and_start(self, ahk:AHK):
+    def callback_auto_pub_and_start(self, ahk: AHK):
         if self.plateau.is_end(image=grab_image(box=(0, 0, self.plateau.screen_size[0], self.plateau.screen_size[1]))):
             print("auto_pub_and_start")
             sleep(1)
@@ -171,13 +173,15 @@ class FeaturePlateau:
             # attend chargement
             print("attend chargement")
             sleep(10)
-            if not self.plateau.is_coop_ready(grab_image(box=(0, 0, self.plateau.screen_size[0], self.plateau.screen_size[1]))):
+            if not self.plateau.is_coop_ready(
+                    grab_image(box=(0, 0, self.plateau.screen_size[0], self.plateau.screen_size[1]))):
                 # on regarde la pub
                 self.plateau.start_pub()
                 print("start pub")
                 sleep(2)
                 win = ahk.active_window
-                while not self.plateau.is_coop_ready(grab_image(box=(0, 0, self.plateau.screen_size[0], self.plateau.screen_size[1]))):
+                while not self.plateau.is_coop_ready(
+                        grab_image(box=(0, 0, self.plateau.screen_size[0], self.plateau.screen_size[1]))):
                     print("attente fin de pub")
                     sleep(2)
                     # win.send('Escape')
@@ -195,3 +199,61 @@ class FeaturePlateau:
             for i in range(10):
                 self.plateau.add_dice()
                 sleep(0.1)
+
+
+def merge_dice_feature(plateau: Plateau,
+                       type_dices_from: Union[list, tuple],
+                       type_dices_to: Union[list, tuple],
+                       min_dices_board: int,
+                       max_dices_board: int,
+                       min_dots: int,
+                       max_dots: int,
+                       min_dices_from: int,
+                       min_dices_to: int,
+                       merge_priority_lower: bool):  # TODO
+    # dice on the board
+    cur_dices_board = 15 - plateau.get_nb_cases_vide()
+    if not (min_dices_board <= cur_dices_board <= max_dices_board):
+        return
+
+    merges = plateau.get_possible_merge()
+
+    nb_dices_from = [0 for i in range(7)]
+    nb_dices_to = [0 for i in range(7)]
+    nb_dices_mimic = [0 for i in range(7)]  # if eco mode
+
+    # on compte les dés présent
+    for case_row in plateau.cases:
+        for case in case_row:
+            if case.dice is not None:
+                if case == type_dices_from:
+                    nb_dices_from[case.dice.dot - 1] += 1
+                elif case == type_dices_to:
+                    nb_dices_to[case.dice.dot - 1] += 1
+                elif case == DiceColorEnum.MIMIC:
+                    nb_dices_mimic[case.dice.dot - 1] += 1
+
+    # from-to
+    for etoile in range(min_dots - 1, max_dots):
+        if nb_dices_from[etoile] >= min_dices_from and nb_dices_to[etoile] >= min_dices_to:
+            for merge in merges:
+                if merge.from_case == type_dices_from and \
+                        merge.to_case == type_dices_to and \
+                        merge.from_case == etoile + 1 and \
+                        min_dots <= merge.from_case <= max_dots:
+                    plateau.do_merge(merge)
+                    break
+
+
+def buy_upgrade_feature(plateau: Plateau,
+                        proba_buy_shop: float,
+                        idx_dices=None,
+                        min_dice_board=6):
+    while random.random() < proba_buy_shop:
+        idx_dice_to_buy = random.randint(1, 5)
+        if 15 - plateau.get_nb_cases_vide() >= min_dice_board:
+            while idx_dice_to_buy not in idx_dices and idx_dices is not None:
+                idx_dice_to_buy = random.randint(1, 5)
+
+            sleep(1)
+            plateau.buy_shop(idx_dice_to_buy)

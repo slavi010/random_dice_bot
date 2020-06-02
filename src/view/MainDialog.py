@@ -12,7 +12,7 @@
 # Copyright (c) 2020 slavi010 pro@slavi.dev
 #
 import tkinter as tk
-from tkinter import ttk
+from abc import abstractmethod, ABC
 
 import cv2
 import numpy as np
@@ -22,6 +22,7 @@ from ahk import AHK
 from src.model.DiceEnum import DiceColorEnum
 from src.model.Plateau import Plateau
 from src.view.Deck import Deck
+from src.view.DialogConfFeature import DiceMergeFeatureConfDialog, BuyUpgradeFeatureConfDialog
 
 
 class MainDialog:
@@ -60,8 +61,8 @@ class MainDialog:
 
         # frm_feature widgets
         self.sub_feature_frms = []
-        self.sub_feature_frms.append(MergeDiceFeatureView(self.frm_feature))
-        self.sub_feature_frms.append(BuyUpgradeFeatureView(self.frm_feature))
+        self.sub_feature_frms.append(MergeDiceFeatureView(self.frm_feature, deck=self.deck))
+        self.sub_feature_frms.append(BuyUpgradeFeatureView(self.frm_feature, deck=self.deck))
 
         # frm_feature widgets layouts
         # self.update_frm_feature()
@@ -80,6 +81,7 @@ class MainDialog:
             dice_canvas.delete("all")
             dice_canvas.create_image(0, 0, anchor="nw",
                                      image=self.all_dice_images[self.deck.dices[idx]])
+        self.deck.notify()
 
     def callback_change_dice_1(self, event):
         self.change_dice_dialog(0)
@@ -165,14 +167,23 @@ class AbstractFeatureView:
         # frm widgets layout
         self.lbl_name_feature.pack()
 
+        # parameters
+        self.parameters = None
+
+    @abstractmethod
     def get_frm(self):
         pass
 
+    def get_callback_feature(self):
+        return self.callback_feature
 
-class MergeDiceFeatureView(AbstractFeatureView):
+
+class MergeDiceFeatureView(AbstractFeatureView, ABC):
     """Merge dice"""
-    def __init__(self, root):
+
+    def __init__(self, root, deck: Deck):
         super().__init__(root)
+        self.deck = deck
 
         # change name label
         self.lbl_name_feature['text'] = "Merge dice"
@@ -180,55 +191,38 @@ class MergeDiceFeatureView(AbstractFeatureView):
         # widgets
         # dices
         self.lbx_dices_value = tk.StringVar()
-        self.lbx_dices = ttk.Combobox(self.frm_option,
-                                      textvariable=self.lbx_dices_value,
-                                      values=[name for name, member in DiceColorEnum.__members__.items()],
-                                      state='readonly')
-        self.lbx_dices.current(0)
 
-        # widgets layouts
-        self.lbx_dices.grid(row=0, column=1)
+        # config
+        self.btn_config = tk.Button(self.frm_option, width=8, text="Config")
+        self.btn_config['command'] = self.callback_config
+        self.btn_config.pack()
+
+    def callback_config(self):
+        self.parameters = DiceMergeFeatureConfDialog(self.deck, True, self.parameters).returning
 
     def get_frm(self):
         return self.frm
 
 
 class BuyUpgradeFeatureView(AbstractFeatureView):
-    """Merge dice"""
-    def __init__(self, root):
+    """Buy upgrade"""
+    def __init__(self, root, deck: Deck):
         super().__init__(root)
+        self.deck = deck
 
         # change name label
         self.lbl_name_feature['text'] = "Buy upgrade"
 
-        # widgets
-        # proba buy
-        self.lbl_proba_buy = tk.Label(self.frm_option, text="Proba buy shop (%) :")
-        self.entry_var_proba_buy = tk.IntVar(self.frm_option, 5)
-        self.entry_proba_buy = tk.Entry(self.frm_option, textvariable=self.entry_var_proba_buy)
-        # dices index
-        self.lbl_dices_idx = tk.Label(self.frm_option, text="Index dices to buy :")
-        self.entry_var_dices_idx = tk.StringVar(self.frm_option, "5")
-        self.entry_dices_idx = tk.Entry(self.frm_option, textvariable=self.entry_var_dices_idx)
-        # min dice board
-        self.lbl_min_dice_board = tk.Label(self.frm_option, text="Min dice board :")
-        self.entry_var_min_dice_board = tk.IntVar(self.frm_option, 8)
-        self.entry_min_dice_board = tk.Entry(self.frm_option, textvariable=self.entry_var_min_dice_board)
+        # config
+        self.btn_config = tk.Button(self.frm_option, width=8, text="Config")
+        self.btn_config['command'] = self.callback_config
+        self.btn_config.pack()
 
-        # widgets layouts
-        # labels
-        self.lbl_proba_buy.grid(row=0, column=0)
-        self.lbl_dices_idx.grid(row=1, column=0)
-        self.lbl_min_dice_board.grid(row=2, column=0)
-        # entrys
-        self.entry_proba_buy.grid(row=0, column=1)
-        self.entry_dices_idx.grid(row=1, column=1)
-        self.entry_min_dice_board.grid(row=2, column=1)
+    def callback_config(self):
+        self.parameters = BuyUpgradeFeatureConfDialog(self.deck, True, self.parameters).returning
 
     def get_frm(self):
         return self.frm
-
-
 
 
 root = tk.Tk()
