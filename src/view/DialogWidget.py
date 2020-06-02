@@ -86,6 +86,32 @@ class FieldInt:
         return value
 
 
+class FieldString:
+    """
+    A str field + label.
+    """
+    def __init__(self, root, lbl_text: str, default_value: str):
+        self.root = root
+        self.lbl_text = lbl_text
+        self.default_value = default_value
+
+        # Frame
+        self.frm = tk.Frame(self.root)
+
+        # widgets
+        self.lbl = tk.Label(self.frm, text=self.lbl_text, anchor="w")
+        self.entry_var = tk.StringVar(self.frm, default_value)
+        self.entry = tk.Entry(self.frm, textvariable=self.entry_var)
+
+        # widgets layouts
+        self.lbl.grid(row=0, column=0)
+        self.entry.grid(row=0, column=1)
+
+    def get_value(self):
+        value = self.entry_var.get()
+        return value
+
+
 class FieldRadioBinary:
     """
     2 radio buttons, like a check box

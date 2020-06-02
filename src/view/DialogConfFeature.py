@@ -12,23 +12,19 @@
 # Copyright (c) 2020 slavi010 pro@slavi.dev
 #
 import tkinter as tk
+from abc import abstractmethod
 from typing import Dict, Union
 
 from src.model.DiceEnum import DiceColorEnum
 from src.model.FeaturePlateau import merge_dice_feature, buy_upgrade_feature
 from src.view.Deck import Deck
-from src.view.DialogWidget import FieldInt, ListDice, FieldRadioBinary
+from src.view.DialogWidget import FieldInt, ListDice, FieldRadioBinary, FieldString
 
 
-class DiceMergeFeatureConfDialog:
-    """
-    The config dialog for the dice_merge feature.
-    """
-    def __init__(self, deck: Deck, frame: bool, returning: Dict):
+class AbstractFeatureConfDialog:
+    def __init__(self, frame: bool, returning: Dict):
         # https://stackoverflow.com/questions/10057672/correct-way-to-implement-a-custom-popup-tkinter-dialog-box
         self.root = tk.Tk()
-        self.deck = deck
-        self.root.title('Merge dice feature')
         # remove the outer frame if frame=False
         if not frame: self.root.overrideredirect(True)
 
@@ -39,6 +35,29 @@ class DiceMergeFeatureConfDialog:
         self.returning = returning
 
         # Frame
+        self.frm_name = tk.Frame(self.root)
+        self.frm_name.grid(row=0, column=0)
+
+        # frm_name widgets
+        self.fld_name = FieldString(self.frm_name, "Name: ", self.returning.get("name"))
+        self.fld_name.frm.pack()
+
+    @abstractmethod
+    def close_mod(self):
+        pass
+
+
+class DiceMergeFeatureConfDialog(AbstractFeatureConfDialog):
+    """
+    The config dialog for the dice_merge feature.
+    """
+    def __init__(self, deck: Deck, frame: bool, returning: Dict):
+        # https://stackoverflow.com/questions/10057672/correct-way-to-implement-a-custom-popup-tkinter-dialog-box
+        super().__init__(frame, returning)
+        self.deck = deck
+        self.root.title('Merge dice feature')
+
+        # Frame
         self.frm_lst = tk.Frame(self.root)
         self.frm_min_max = tk.Frame(self.root)
         self.frm_rad = tk.Frame(self.root)
@@ -47,10 +66,10 @@ class DiceMergeFeatureConfDialog:
         self.btn_save['command'] = self.btn_save_action
 
         # Frame layout
-        self.frm_lst.grid(row=0, column=0)
-        self.frm_min_max.grid(row=1, column=0)
-        self.frm_rad.grid(row=2, column=0)
-        self.btn_save.grid(row=3, column=0)
+        self.frm_lst.grid(row=1, column=0)
+        self.frm_min_max.grid(row=2, column=0)
+        self.frm_rad.grid(row=3, column=0)
+        self.btn_save.grid(row=4, column=0)
 
         # dice chose
         self.lst_from = ListDice(self.frm_lst, deck, "from",
@@ -65,7 +84,7 @@ class DiceMergeFeatureConfDialog:
         self.fld_min_dots = FieldInt(self.frm_min_max, "min dots dice: ", 1, self.returning.get('min_dots'), 7)
         self.fld_max_dots = FieldInt(self.frm_min_max, "max dots dice: ", 1, self.returning.get('max_dots'), 7)
         self.fld_min_dices_from = FieldInt(self.frm_min_max, "min dices from: ", 1, self.returning.get('min_dices_from'), 15)
-        self.fld_min_dices_to = FieldInt(self.frm_min_max, "max dices to: ", 1, self.returning.get('min_dices_to'), 15)
+        self.fld_min_dices_to = FieldInt(self.frm_min_max, "min dices to: ", 1, self.returning.get('min_dices_to'), 15)
         # radio
         self.rad_merge_priority = FieldRadioBinary(self.frm_rad, "merge priority: ", "lower", "random", self.returning.get('merge_priority'))
 
@@ -92,6 +111,7 @@ class DiceMergeFeatureConfDialog:
 
     def btn_save_action(self, event=None):
         self.returning = {
+            "name": self.fld_name.get_value(),
             "lst_from": self.lst_from.get_selected_dices(),
             "lst_to": self.lst_to.get_selected_dices(),
             "min_dices_board": self.fld_min_dices_board.get_value(),
@@ -106,23 +126,15 @@ class DiceMergeFeatureConfDialog:
         self.root.destroy()
 
 
-class BuyUpgradeFeatureConfDialog:
+class BuyUpgradeFeatureConfDialog(AbstractFeatureConfDialog):
     """
     The config dialog for the buy_upgrade feature.
     """
     def __init__(self, deck: Deck, frame: bool, returning: Union[Dict, None]):
-        # https://stackoverflow.com/questions/10057672/correct-way-to-implement-a-custom-popup-tkinter-dialog-box
-        self.root = tk.Tk()
+        super().__init__(frame, returning)
         self.deck = deck
         self.root.title('Buy upgrade feature')
-        # remove the outer frame if frame=False
-        if not frame: self.root.overrideredirect(True)
 
-        # call self.close_mod when the close button is pressed
-        self.root.protocol("WM_DELETE_WINDOW", self.close_mod)
-
-        # The returning value
-        self.returning = returning
         # Frame
         self.frm_lst = tk.Frame(self.root)
         self.frm_field = tk.Frame(self.root)
@@ -131,9 +143,9 @@ class BuyUpgradeFeatureConfDialog:
         self.btn_save['command'] = self.btn_save_action
 
         # Frame layout
-        self.frm_lst.grid(row=0, column=0)
-        self.frm_field.grid(row=1, column=0)
-        self.btn_save.grid(row=2, column=0)
+        self.frm_lst.grid(row=1, column=0)
+        self.frm_field.grid(row=2, column=0)
+        self.btn_save.grid(row=3, column=0)
 
         # dice chose
         self.lst = ListDice(self.frm_lst, deck, "from", self.returning.get("lst_index_dice"))
@@ -164,6 +176,7 @@ class BuyUpgradeFeatureConfDialog:
 
     def btn_save_action(self, event=None):
         self.returning = {
+            "name": self.fld_name.get_value(),
             "lst_index_dice": self.deck.get_index_dices(self.lst.get_selected_dices()),
             "proba_buy_upgrade": self.fld_proba_buy_upgrade.get_value() / 100.0,
             "min_dices_board": self.fld_min_dice_board.get_value(),

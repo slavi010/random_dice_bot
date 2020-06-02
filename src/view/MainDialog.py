@@ -13,6 +13,7 @@
 #
 import tkinter as tk
 from abc import abstractmethod, ABC
+from typing import Optional, Dict
 
 import cv2
 import numpy as np
@@ -31,6 +32,11 @@ class MainDialog:
 
     def __init__(self, root):
         self.root = root
+
+        # show this dialog
+        self.show = False
+
+        self.root.deiconify()
 
         # Frame
         self.frm_deck = tk.Frame(self.root, width=300, height=60, pady=3)
@@ -64,9 +70,6 @@ class MainDialog:
 
         # frm_feature widgets
         self.sub_feature_frms = []
-        self.sub_feature_frms.append(MergeDiceFeatureView(self.frm_feature, deck=self.deck))
-        self.sub_feature_frms.append(BuyUpgradeFeatureView(self.frm_feature, deck=self.deck))
-        self.sub_feature_frms.append(BuyDiceFeatureView(self.frm_feature))
 
         # frm_feature widgets layouts
         # self.update_frm_feature()
@@ -75,22 +78,27 @@ class MainDialog:
         self.btn_add_merge_dice_feature = tk.Button(self.frm_action, text="Add merge dice feature")
         self.btn_add_buy_shop_feature = tk.Button(self.frm_action, text="Add buy shop feature")
         self.btn_add_buy_dice_feature = tk.Button(self.frm_action, text="Add buy dice feature")
+        self.btn_start = tk.Button(self.frm_action, text="Start bot")
+
         self.btn_add_merge_dice_feature['command'] = \
             lambda: self.add_feature(MergeDiceFeatureView(self.frm_feature, deck=self.deck))
         self.btn_add_buy_shop_feature['command'] = \
             lambda: self.add_feature(BuyUpgradeFeatureView(self.frm_feature, deck=self.deck))
         self.btn_add_buy_dice_feature['command'] = \
             lambda: self.add_feature(BuyDiceFeatureView(self.frm_feature))
+        self.btn_start['command'] = \
+            lambda: self.set_show(False)
 
         # frm_action widgets layouts
         self.btn_add_merge_dice_feature.grid(row=0, column=0)
         self.btn_add_buy_shop_feature.grid(row=1, column=0)
         self.btn_add_buy_dice_feature.grid(row=2, column=0)
+        self.btn_start.grid(row=4, column=0)
 
         # load all dices images
         self.all_dice_images = {}
         for name, member in DiceColorEnum.__members__.items():
-            image = Image.open("../../image/dice/%s.png" % name)
+            image = Image.open("../image/dice/%s.png" % name)
             image = image.resize((50, 50), Image.ANTIALIAS)
             self.all_dice_images[member] = ImageTk.PhotoImage(image)
 
@@ -120,6 +128,20 @@ class MainDialog:
     def add_feature(self, feature_view):
         self.sub_feature_frms.append(feature_view)
         self.update_frm_feature()
+        self.update_image_dices()
+
+    def set_show(self, value: bool):
+        self.show = value
+
+    def show_dialog(self):
+        """Show this dialog"""
+        self.root.deiconify()
+        self.show = True
+        while self.show:
+            self.root.update_idletasks()
+            self.root.update()
+        self.root.withdraw()
+        return self
 
 
 class SelectDiceDialog:
@@ -177,9 +199,11 @@ class AbstractFeatureView:
 
         # frm widgets
         self.lbl_name_feature = tk.Label(self.frm_lbl, text="default", anchor="w", font='Helvetica 12 bold')
+        self.lbl_name_custom = tk.Label(self.frm_lbl, anchor="w")
 
         # frm widgets layout
-        self.lbl_name_feature.pack()
+        self.lbl_name_feature.grid(row=0, column=0)
+        self.lbl_name_custom.grid(row=0, column=1)
 
         # parameters
         self.parameters = None
@@ -196,7 +220,7 @@ class AbstractFeatureView:
 class MergeDiceFeatureView(AbstractFeatureView):
     """Merge dice"""
 
-    def __init__(self, root, deck: Deck):
+    def __init__(self, root, deck: Deck, parameters: Optional[Dict] = None):
         super().__init__(root)
         self.deck = deck
 
@@ -213,20 +237,27 @@ class MergeDiceFeatureView(AbstractFeatureView):
         self.btn_config.pack()
 
         # default parameters
-        self.parameters = {
-            "lst_from": [],
-            "lst_to": [],
-            "min_dices_board": 2,
-            "max_dices_board": 15,
-            "min_dots": 1,
-            "max_dots": 7,
-            "min_dices_from": 1,
-            "min_dices_to": 15,
-            "merge_priority": 1,
-        }
+        if parameters is not None:
+            self.parameters = parameters
+        else:
+            self.parameters = {
+                "name": "",
+                "lst_from": [],
+                "lst_to": [],
+                "min_dices_board": 2,
+                "max_dices_board": 15,
+                "min_dots": 1,
+                "max_dots": 7,
+                "min_dices_from": 1,
+                "min_dices_to": 1,
+                "merge_priority": 1,
+            }
+
+        self.lbl_name_custom['text'] = self.parameters.get('name')
 
     def callback_config(self):
         self.parameters = DiceMergeFeatureConfDialog(self.deck, True, self.parameters).returning
+        self.lbl_name_custom['text'] = self.parameters.get('name')
 
     def get_frm(self):
         return self.frm
@@ -249,7 +280,7 @@ class MergeDiceFeatureView(AbstractFeatureView):
 class BuyUpgradeFeatureView(AbstractFeatureView):
     """Buy upgrade"""
 
-    def __init__(self, root, deck: Deck):
+    def __init__(self, root, deck: Deck, parameters: Optional[Dict] = None):
         super().__init__(root)
         self.deck = deck
 
@@ -262,14 +293,21 @@ class BuyUpgradeFeatureView(AbstractFeatureView):
         self.btn_config.pack()
 
         # default parameters
-        self.parameters = {
-            "lst_index_dice": [],
-            "proba_buy_upgrade": 0.05,
-            "min_dices_board": 8,
-        }
+        if parameters is not None:
+            self.parameters = parameters
+        else:
+            self.parameters = {
+                "name": "",
+                "lst_index_dice": [],
+                "proba_buy_upgrade": 0.05,
+                "min_dices_board": 8,
+            }
+
+        self.lbl_name_custom['text'] = self.parameters.get('name')
 
     def callback_config(self):
         self.parameters = BuyUpgradeFeatureConfDialog(self.deck, True, self.parameters).returning
+        self.lbl_name_custom['text'] = self.parameters.get('name')
 
     def get_frm(self):
         return self.frm
@@ -299,12 +337,12 @@ class BuyDiceFeatureView(AbstractFeatureView):
         return lambda plateau: buy_dice_feature(plateau)
 
 
-root = tk.Tk()
-ahk = AHK()
-# plateau = Plateau(ahk)
-
-main_dialog = MainDialog(root)
-main_dialog.update_image_dices()
-main_dialog.update_frm_feature()
-
-root.mainloop()
+# root = tk.Tk()
+# ahk = AHK()
+# # plateau = Plateau(ahk)
+#
+# main_dialog = MainDialog(root)
+# main_dialog.update_image_dices()
+# main_dialog.update_frm_feature()
+#
+# root.mainloop()
