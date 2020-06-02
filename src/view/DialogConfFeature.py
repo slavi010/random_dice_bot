@@ -24,7 +24,7 @@ class DiceMergeFeatureConfDialog:
     """
     The config dialog for the dice_merge feature.
     """
-    def __init__(self, deck: Deck, frame: bool, returning: Union[Dict, None]):
+    def __init__(self, deck: Deck, frame: bool, returning: Dict):
         # https://stackoverflow.com/questions/10057672/correct-way-to-implement-a-custom-popup-tkinter-dialog-box
         self.root = tk.Tk()
         self.deck = deck
@@ -36,20 +36,7 @@ class DiceMergeFeatureConfDialog:
         self.root.protocol("WM_DELETE_WINDOW", self.close_mod)
 
         # The returning value
-        if returning is not None:
-            self.returning = returning
-        else:
-            self.returning = {
-                "lst_from": [],
-                "lst_to": [],
-                "min_dices_board": 2,
-                "max_dices_board": 15,
-                "min_dots": 1,
-                "max_dots": 7,
-                "min_dices_from": 1,
-                "min_dices_to": 15,
-                "merge_priority": 1,
-            }
+        self.returning = returning
 
         # Frame
         self.frm_lst = tk.Frame(self.root)
@@ -135,87 +122,7 @@ class BuyUpgradeFeatureConfDialog:
         self.root.protocol("WM_DELETE_WINDOW", self.close_mod)
 
         # The returning value
-        if returning is not None:
-            self.returning = returning
-        else:
-            self.returning = {
-                "lst_index_dice": [],
-                "proba_buy_upgrade": 0.05,
-                "min_dices_board": 8,
-            }
-
-        # Frame
-        self.frm_lst = tk.Frame(self.root)
-        self.frm_field = tk.Frame(self.root)
-        # save
-        self.btn_save = tk.Button(self.root, width=8, text="Save")
-        self.btn_save['command'] = self.btn_save_action
-
-        # Frame layout
-        self.frm_lst.grid(row=0, column=0)
-        self.frm_field.grid(row=1, column=0)
-        self.btn_save.grid(row=2, column=0)
-
-        # dice chose
-        self.lst = ListDice(self.frm_lst, deck, "from", self.returning.get("lst_index_dice"))
-        self.deck.attach(self.lst)
-
-        # Field
-        self.fld_proba_buy_upgrade = FieldInt(
-            self.frm_field, "Proba buy upgrade (%): ", 0, int(self.returning.get("proba_buy_upgrade")*100), 100
-        )
-        self.fld_min_dice_board = FieldInt(
-            self.frm_field, "Min dice board: ", 0, self.returning.get("min_dices_board"), 15
-        )
-
-        # layouts
-        self.lst.frm.grid(row=0, column=0)
-        self.fld_proba_buy_upgrade.frm.grid(row=0, column=0)
-        self.fld_min_dice_board.frm.grid(row=1, column=0)
-
-        # a trick to activate the window (on windows 7)
-        # self.root.deiconify()
-        self.root.mainloop()
-
-    # remove this function and the call to protocol
-    # then the close button will act normally
-    def close_mod(self):
-        self.root.quit()
-        self.root.destroy()
-
-    def btn_save_action(self, event=None):
-        self.returning = {
-            "lst_index_dice": self.deck.get_index_dices(self.lst.get_selected_dices()),
-            "proba_buy_upgrade": self.fld_proba_buy_upgrade.get_value() / 100.0,
-            "min_dices_board": self.fld_min_dice_board.get_value(),
-        }
-        self.root.quit()
-        self.root.destroy()
-class BuyUpgradeFeatureConfDialog:
-    """
-    The config dialog for the buy_upgrade feature.
-    """
-    def __init__(self, deck: Deck, frame: bool, returning: Union[Dict, None]):
-        # https://stackoverflow.com/questions/10057672/correct-way-to-implement-a-custom-popup-tkinter-dialog-box
-        self.root = tk.Tk()
-        self.deck = deck
-        self.root.title('Buy upgrade feature')
-        # remove the outer frame if frame=False
-        if not frame: self.root.overrideredirect(True)
-
-        # call self.close_mod when the close button is pressed
-        self.root.protocol("WM_DELETE_WINDOW", self.close_mod)
-
-        # The returning value
-        if returning is not None:
-            self.returning = returning
-        else:
-            self.returning = {
-                "lst_index_dice": [],
-                "proba_buy_upgrade": 0.05,
-                "min_dices_board": 8,
-            }
-
+        self.returning = returning
         # Frame
         self.frm_lst = tk.Frame(self.root)
         self.frm_field = tk.Frame(self.root)

@@ -20,6 +20,7 @@ from PIL import ImageTk, Image
 from ahk import AHK
 
 from src.model.DiceEnum import DiceColorEnum
+from src.model.FeaturePlateau import merge_dice_feature, buy_upgrade_feature, buy_dice_feature
 from src.model.Plateau import Plateau
 from src.view.Deck import Deck
 from src.view.DialogConfFeature import DiceMergeFeatureConfDialog, BuyUpgradeFeatureConfDialog
@@ -34,10 +35,12 @@ class MainDialog:
         # Frame
         self.frm_deck = tk.Frame(self.root, width=300, height=60, pady=3)
         self.frm_feature = tk.Frame(self.root, width=300, height=60, pady=3)
+        self.frm_action = tk.Frame(self.root, width=300, height=60, pady=3)
 
         # Frame grid
         self.frm_deck.grid(row=0, sticky="ew")
         self.frm_feature.grid(row=1, sticky="ew")
+        self.frm_action.grid(row=2, sticky="ew")
 
         # frm_deck widgets
         self.deck = Deck([DiceColorEnum.JOKER,
@@ -49,11 +52,11 @@ class MainDialog:
         for i in range(5):
             canvas = tk.Canvas(self.frm_deck, width=50, height=50)
             self.dices_canvas.append(canvas)
-        self.dices_canvas[0].bind("<Button-1>", self.callback_change_dice_1)
-        self.dices_canvas[1].bind("<Button-1>", self.callback_change_dice_2)
-        self.dices_canvas[2].bind("<Button-1>", self.callback_change_dice_3)
-        self.dices_canvas[3].bind("<Button-1>", self.callback_change_dice_4)
-        self.dices_canvas[4].bind("<Button-1>", self.callback_change_dice_5)
+        self.dices_canvas[0].bind("<Button-1>", lambda: self.change_dice_dialog(0))
+        self.dices_canvas[1].bind("<Button-1>", lambda: self.change_dice_dialog(1))
+        self.dices_canvas[2].bind("<Button-1>", lambda: self.change_dice_dialog(2))
+        self.dices_canvas[3].bind("<Button-1>", lambda: self.change_dice_dialog(3))
+        self.dices_canvas[4].bind("<Button-1>", lambda: self.change_dice_dialog(4))
 
         # frm_deck layout widgets
         for idx, dice_canvas in enumerate(self.dices_canvas):
@@ -63,10 +66,26 @@ class MainDialog:
         self.sub_feature_frms = []
         self.sub_feature_frms.append(MergeDiceFeatureView(self.frm_feature, deck=self.deck))
         self.sub_feature_frms.append(BuyUpgradeFeatureView(self.frm_feature, deck=self.deck))
+        self.sub_feature_frms.append(BuyDiceFeatureView(self.frm_feature))
 
         # frm_feature widgets layouts
         # self.update_frm_feature()
 
+        # frm_action widgets
+        self.btn_add_merge_dice_feature = tk.Button(self.frm_action, text="Add merge dice feature")
+        self.btn_add_buy_shop_feature = tk.Button(self.frm_action, text="Add buy shop feature")
+        self.btn_add_buy_dice_feature = tk.Button(self.frm_action, text="Add buy dice feature")
+        self.btn_add_merge_dice_feature['command'] = \
+            lambda: self.add_feature(MergeDiceFeatureView(self.frm_feature, deck=self.deck))
+        self.btn_add_buy_shop_feature['command'] = \
+            lambda: self.add_feature(BuyUpgradeFeatureView(self.frm_feature, deck=self.deck))
+        self.btn_add_buy_dice_feature['command'] = \
+            lambda: self.add_feature(BuyDiceFeatureView(self.frm_feature))
+
+        # frm_action widgets layouts
+        self.btn_add_merge_dice_feature.grid(row=0, column=0)
+        self.btn_add_buy_shop_feature.grid(row=1, column=0)
+        self.btn_add_buy_dice_feature.grid(row=2, column=0)
 
         # load all dices images
         self.all_dice_images = {}
@@ -76,29 +95,19 @@ class MainDialog:
             self.all_dice_images[member] = ImageTk.PhotoImage(image)
 
     def update_image_dices(self):
-        """update the image in the window with the current dice deck"""
+        """
+        Update images in the ui with the current dice deck
+        """
         for idx, dice_canvas in enumerate(self.dices_canvas):
             dice_canvas.delete("all")
             dice_canvas.create_image(0, 0, anchor="nw",
                                      image=self.all_dice_images[self.deck.dices[idx]])
         self.deck.notify()
 
-    def callback_change_dice_1(self, event):
-        self.change_dice_dialog(0)
-
-    def callback_change_dice_2(self, event):
-        self.change_dice_dialog(1)
-
-    def callback_change_dice_3(self, event):
-        self.change_dice_dialog(2)
-
-    def callback_change_dice_4(self, event):
-        self.change_dice_dialog(3)
-
-    def callback_change_dice_5(self, event):
-        self.change_dice_dialog(4)
-
     def change_dice_dialog(self, index_dice_deck):
+        """
+        Open the SelectDiceDialog for change a dice
+        """
         new = tk.Toplevel(self.root)
         new.grab_set()
         SelectDiceDialog(new, self, index_dice_deck)
@@ -108,9 +117,14 @@ class MainDialog:
             sub_feature_frm.get_frm().grid_forget()
             sub_feature_frm.get_frm().grid(row=idx, column=0)
 
+    def add_feature(self, feature_view):
+        self.sub_feature_frms.append(feature_view)
+        self.update_frm_feature()
+
 
 class SelectDiceDialog:
     """Select one dice of all dice"""
+
     def __init__(self, root, main_dialog: MainDialog, index_dice_deck):
         self.root = root
         # self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
@@ -153,9 +167,9 @@ class AbstractFeatureView:
         self.root = root
 
         # Frame
-        self.frm = tk.Frame(self.root, width=2, height=60)
-        self.frm_lbl = tk.Frame(self.frm, width=2, height=60)
-        self.frm_option = tk.Frame(self.frm, width=2, height=60)
+        self.frm = tk.Frame(self.root, width=2, height=1)
+        self.frm_lbl = tk.Frame(self.frm, width=2, height=1)
+        self.frm_option = tk.Frame(self.frm, width=2, height=1)
 
         # Frame grid
         self.frm_lbl.pack()
@@ -174,11 +188,12 @@ class AbstractFeatureView:
     def get_frm(self):
         pass
 
+    @abstractmethod
     def get_callback_feature(self):
-        return self.callback_feature
+        pass
 
 
-class MergeDiceFeatureView(AbstractFeatureView, ABC):
+class MergeDiceFeatureView(AbstractFeatureView):
     """Merge dice"""
 
     def __init__(self, root, deck: Deck):
@@ -197,15 +212,43 @@ class MergeDiceFeatureView(AbstractFeatureView, ABC):
         self.btn_config['command'] = self.callback_config
         self.btn_config.pack()
 
+        # default parameters
+        self.parameters = {
+            "lst_from": [],
+            "lst_to": [],
+            "min_dices_board": 2,
+            "max_dices_board": 15,
+            "min_dots": 1,
+            "max_dots": 7,
+            "min_dices_from": 1,
+            "min_dices_to": 15,
+            "merge_priority": 1,
+        }
+
     def callback_config(self):
         self.parameters = DiceMergeFeatureConfDialog(self.deck, True, self.parameters).returning
 
     def get_frm(self):
         return self.frm
 
+    def get_callback_feature(self):
+        return lambda plateau: merge_dice_feature(
+            plateau,
+            self.parameters.get('lst_from'),
+            self.parameters.get('lst_to'),
+            self.parameters.get('min_dices_board'),
+            self.parameters.get('max_dices_board'),
+            self.parameters.get('min_dots'),
+            self.parameters.get('max_dots'),
+            self.parameters.get('min_dices_from'),
+            self.parameters.get('min_dices_to'),
+            self.parameters.get('merge_priority') == 1,
+        )
+
 
 class BuyUpgradeFeatureView(AbstractFeatureView):
     """Buy upgrade"""
+
     def __init__(self, root, deck: Deck):
         super().__init__(root)
         self.deck = deck
@@ -218,11 +261,42 @@ class BuyUpgradeFeatureView(AbstractFeatureView):
         self.btn_config['command'] = self.callback_config
         self.btn_config.pack()
 
+        # default parameters
+        self.parameters = {
+            "lst_index_dice": [],
+            "proba_buy_upgrade": 0.05,
+            "min_dices_board": 8,
+        }
+
     def callback_config(self):
         self.parameters = BuyUpgradeFeatureConfDialog(self.deck, True, self.parameters).returning
 
     def get_frm(self):
         return self.frm
+
+    def get_callback_feature(self):
+        return lambda plateau: buy_upgrade_feature(
+            plateau,
+            self.parameters.get('proba_buy_upgrade'),
+            self.parameters.get('lst_index_dice'),
+            self.parameters.get('min_dices_board'),
+        )
+
+
+class BuyDiceFeatureView(AbstractFeatureView):
+    """Buy dice"""
+
+    def __init__(self, root):
+        super().__init__(root)
+
+        # change name label
+        self.lbl_name_feature['text'] = "Buy dice"
+
+    def get_frm(self):
+        return self.frm
+
+    def get_callback_feature(self):
+        return lambda plateau: buy_dice_feature(plateau)
 
 
 root = tk.Tk()

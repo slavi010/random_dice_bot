@@ -257,3 +257,7 @@ def buy_upgrade_feature(plateau: Plateau,
 
             sleep(1)
             plateau.buy_shop(idx_dice_to_buy)
+
+
+def buy_dice_feature(plateau: Plateau):
+    plateau.add_dice()
