@@ -27,13 +27,17 @@ from src.model.Plateau import Plateau, grab_image
 
 from ahk import AHK
 
-from src.view.MainDialog import MainDialog, MergeDiceFeatureView, BuyDiceFeatureView, BuyUpgradeFeatureView
+from src.view.MainDialog import MainDialog, MergeDiceFeatureView, BuyDiceFeatureView, BuyUpgradeFeatureView, \
+    AutoAdFeatureView
 
 if __name__ == '__main__':
     # ahk is use for do click, mouse drag and auto ad
     ahk = AHK()
 
-    main_dialog = MainDialog(tk.Tk())
+    main_dialog = MainDialog(tk.Tk(), ahk)
+
+    # auto ad
+    main_dialog.add_feature(AutoAdFeatureView(main_dialog.frm_feature, ahk))
 
     # buy dice
     main_dialog.add_feature(BuyDiceFeatureView(main_dialog.frm_feature))

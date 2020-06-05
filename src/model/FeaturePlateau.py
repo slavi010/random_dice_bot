@@ -268,3 +268,37 @@ def buy_upgrade_feature(plateau: Plateau,
 def buy_dice_feature(plateau: Plateau):
     plateau.add_dice()
     return False
+
+
+def auto_ad_feature(plateau, ahk: AHK):
+    if plateau.is_end(image=grab_image(box=(0, 0, plateau.screen_size[0], plateau.screen_size[1]))):
+        print("auto_pub_and_start")
+        sleep(1)
+        plateau.add_dice()
+        # attend chargement
+        print("attend chargement")
+        sleep(10)
+        if not plateau.is_coop_ready(
+                grab_image(box=(0, 0, plateau.screen_size[0], plateau.screen_size[1]))):
+            # on regarde la pub
+            plateau.start_pub()
+            print("start pub")
+            sleep(2)
+            while not plateau.is_coop_ready(
+                    grab_image(box=(0, 0, plateau.screen_size[0], plateau.screen_size[1]))):
+                print("attente fin de pub")
+                sleep(2)
+                script = "Send, {Escape}\n" + \
+                         "Send, {Ctrl down}\n" + \
+                         "Send, {Backspace}\n" + \
+                         "Send, {Ctrl up}"
+                ahk.run_script(script)
+                sleep(2)
+            print("pub fini")
+        sleep(3)
+        print("start coop")
+        plateau.start_coop()
+        sleep(12)
+        for i in range(10):
+            plateau.add_dice()
+            sleep(0.1)
