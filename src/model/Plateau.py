@@ -36,7 +36,6 @@ from src.model.Utils import same_color, same_color_hsv
 class Plateau:
     def __init__(self, ahk: AHK):
         self.ahk = ahk
-        self.feature = None
 
         # get position premier dé en haut à gauche et dernier dé en bas à droite
         x_1, y_1, x_2, y_2 = MouseEvent.grab_points_dice()
@@ -149,12 +148,15 @@ class Plateau:
         self.ahk.click(x=self.btn_coord_buy_shop[dice - 1][0], y=self.btn_coord_buy_shop[dice - 1][1], blocking=False)
 
     def do_merge(self, merge: Merge):
-        self.ahk.mouse_move(x=merge.from_case.x, y=merge.from_case.y)
+        self.ahk.mouse_move(x=merge.from_case.x, y=merge.from_case.y, speed=3)
+        sleep(0.1)
         self.ahk.mouse_drag(x=merge.to_case.x, y=merge.to_case.y)
 
         # on reposition la sourie en IDLE
         self.ahk.mouse_move(x=self.cases[0][0].x - self.cases[0][0].width,
-                            y=self.cases[0][0].y - self.cases[0][0].height)
+                            y=self.cases[0][0].y - self.cases[0][0].height,
+                            speed=3)
+        sleep(0.1)
 
     def get_possible_merge(self, shuffle=True):
         merges = []
