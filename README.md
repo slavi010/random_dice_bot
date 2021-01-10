@@ -131,11 +131,11 @@ Si vous voulez donner un coup de main :
 * Pour proposer une nouvelle fonctionnalité ou un déclarer un un bug :
 Créez une [nouvelle Issue](https://github.com/slavi010/random_dice_bot/issues/new/choose).
 * Si vous voulez le faire vous même :
-    Faite vos changement sur une nouvelle branche puis demandez un [nouveau 
-    Pull Request](https://github.com/slavi010/random_dice_bot/compare) sur la branche *master*.
+    Faite vos changement en faisant un fork du projet sur votre compte puis demandez un [nouveau 
+    Pull Request](https://github.com/slavi010/random_dice_bot/compare) sur la branche *master* de ce projet.
     
-    Si vos changement sont **significatif** dans un fichier ou que vous en créez un nouveau,
-    pensez à mettre votre nom et votre email en haut du fichier.
+    Si vos changement sont *significatif* dans un fichier ou que vous en créez un nouveau,
+    pensez à mettre votre nom/speudo et votre email en haut du fichier.
     
 ## Clause de non responsabilité
 Ce projet a pour but une utilisation ludique des capacités de python.
