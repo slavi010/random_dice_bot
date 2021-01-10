@@ -89,7 +89,7 @@ class DiceColorEnum(Enum):
 
     JOKER = (31, [])
 
-    GROWTH = (36, [(147, 40, 57), (119, 29, 46)])
+    GROWTH = (36, [(145, 41, 58)])
 
     COMBO = (46, [(145, 32, 162)])
 

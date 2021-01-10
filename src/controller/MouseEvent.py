@@ -46,20 +46,26 @@ def grab_points_dice():
 
     image = Plateau.grab_image()[y_1:y_2, x_1:x_2]
 
-    # image = cv2.imread("image/empty_board.png")
+    # image = cv2.imread("../image/new_ui/empty_board.png")
+    # print(image is not None)
 
-    mask = cv2.inRange(cv2.cvtColor(image, cv2.COLOR_BGR2HSV), (0, 0, 0), (250, 250, 250))
-    mask = cv2.erode(mask, None, iterations=2)
-    mask = cv2.dilate(mask, None, iterations=2)
-    image = cv2.bitwise_and(image, image, mask=mask)
 
+    # mask = cv2.inRange(cv2.cvtColor(image, cv2.COLOR_BGR2HSV), (0, 0, 229), (160, 4, 241))
+    # mask = cv2.erode(mask, None, iterations=2)
+    # mask = cv2.dilate(mask, None, iterations=2)
+    # image = cv2.bitwise_and(image, image, mask=mask)
+
+    image[(image*255 < 42) | (image*255 > 81)] = 0
     ret, thresh = cv2.threshold(cv2.cvtColor(image.copy(),
-                                             cv2.COLOR_BGR2GRAY),
-                                20,
+                                             cv2.COLOR_RGB2GRAY),
+                                162,
                                 255,
                                 cv2.THRESH_BINARY)
     contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_TC89_KCOS)
     contours = sorted(contours, key=cv2.contourArea, reverse=True)
+    cv2.drawContours(image, contours, -1, (0, 225, 0), 3)
+    cv2.imshow("show", image)
+    cv2.waitKey(1000)
 
     max_area = 0
     max_boundRect = None
@@ -70,10 +76,15 @@ def grab_points_dice():
             max_area = boundRect[2]*boundRect[3]
             max_boundRect = boundRect
 
-    point_x1 = max_boundRect[0] + max_boundRect[2]*0.15
-    point_y1 = max_boundRect[1] + max_boundRect[3]*0.22
-    point_x2 = max_boundRect[0] + max_boundRect[2]*0.85
-    point_y2 = max_boundRect[1] + max_boundRect[3]*0.765
+    # point_x1 = max_boundRect[0] + max_boundRect[2]*0.16
+    # point_y1 = max_boundRect[1] + max_boundRect[3]*0.22
+    # point_x2 = max_boundRect[0] + max_boundRect[2]*0.85
+    # point_y2 = max_boundRect[1] + max_boundRect[3]*0.765
+
+    point_x1 = max_boundRect[0] + max_boundRect[2]*0.135
+    point_y1 = max_boundRect[1] + max_boundRect[3]*0.205
+    point_x2 = max_boundRect[0] + max_boundRect[2]*0.86
+    point_y2 = max_boundRect[1] + max_boundRect[3]*0.760
 
     # image = cv2.rectangle(image, (int(max_boundRect[0]), int(max_boundRect[1])),
     #                       (int(max_boundRect[0]+max_boundRect[2]), int(max_boundRect[1]+max_boundRect[3])), (0, 255, 0), 2)
@@ -83,3 +94,7 @@ def grab_points_dice():
     # cv2.waitKey(0)
 
     return int(x_1 + point_x1), int(y_1 + point_y1), int(x_1 + point_x2), int(y_1 + point_y2)
+
+
+if __name__ == '__main__':
+    grab_points_dice()

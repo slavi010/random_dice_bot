@@ -64,8 +64,9 @@ class Case:
 
     def is_mimic_dice(self, image):
         color = image[self.y + int(self.height * 10 / 50)][self.x]
+        print(color)
         # print('joker color : ' + str(color))
-        return same_color_offset_rgb(color, (236, 192, 246), offset_rgb=(15, 15, 15))
+        return same_color_offset_rgb(color, (227, 179, 226), offset_rgb=(15, 15, 15))
 
     def get_dot_dice(self, image, is_multi_color: bool):
         #

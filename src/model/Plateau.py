@@ -37,7 +37,7 @@ class Plateau:
     def __init__(self, ahk: AHK):
         self.ahk = ahk
 
-        # get position premier dé en haut à gauche et dernier dé en bas à droite
+        # get position left top corner + right bottum corner of the board
         x_1, y_1, x_2, y_2 = MouseEvent.grab_points_dice()
 
         width_dice = (x_2 - x_1) / 4
@@ -50,7 +50,7 @@ class Plateau:
         self.screen_size = (1920, 1080)
 
         # btn = (x, y)
-        self.btn_coord_add_dice = (x_1 + int(width_dice * 2.05), y_2 + int(height_dice * 2.6))
+        self.btn_coord_add_dice = (x_1 + int(width_dice * 1.85), y_2 + int(height_dice * 2.3))
         self.btn_coord_buy_shop = []
         for i in range(5):
             self.btn_coord_buy_shop.append(
@@ -59,7 +59,7 @@ class Plateau:
         self.btn_coord_coop_mode_pub = (x_2 + int(width_dice), y_2 + int(height_dice * 2))
         self.btn_coord_coop_mode_quick_match = (x_2, y_2 - int(height_dice))
 
-        # check fin de manche
+        # check game end (color of the dice)
         self.coord_end = (x_1 + int(width_dice*8/5), y_1 - int(height_dice))
 
     def scan_many_time(self, nb_scan, time_between_two_scan_ms=10):

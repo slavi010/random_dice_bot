@@ -42,7 +42,7 @@ if __name__ == '__main__':
     # buy dice
     main_dialog.add_feature(BuyDiceFeatureView(main_dialog.frm_feature))
 
-    # buy upgrade
+    # buy
     main_dialog.add_feature(BuyUpgradeFeatureView(main_dialog.frm_feature,
                                                   main_dialog.deck,
                                                   {
@@ -72,9 +72,9 @@ if __name__ == '__main__':
     main_dialog.add_feature(MergeDiceFeatureView(main_dialog.frm_feature,
                                                  main_dialog.deck,
                                                  {
-                                                     "name": "SACRIFICIAL-SACRIFICIAL",
-                                                     "lst_from": [DiceColorEnum.SACRIFICIAL],
-                                                     "lst_to": [DiceColorEnum.SACRIFICIAL],
+                                                     "name": "METASTASIS-METASTASIS",
+                                                     "lst_from": [DiceColorEnum.METASTASIS],
+                                                     "lst_to": [DiceColorEnum.METASTASIS],
                                                      "min_dices_board": 2,
                                                      "max_dices_board": 15,
                                                      "min_dots": 1,

@@ -53,17 +53,17 @@ class MainDialog:
         self.deck = Deck([DiceColorEnum.JOKER,
                           DiceColorEnum.GROWTH,
                           DiceColorEnum.MIMIC,
-                          DiceColorEnum.SACRIFICIAL,
+                          DiceColorEnum.METASTASIS,
                           DiceColorEnum.COMBO])
         self.dices_canvas = []
         for i in range(5):
             canvas = tk.Canvas(self.frm_deck, width=50, height=50)
             self.dices_canvas.append(canvas)
-        self.dices_canvas[0].bind("<Button-1>", lambda: self.change_dice_dialog(0))
-        self.dices_canvas[1].bind("<Button-1>", lambda: self.change_dice_dialog(1))
-        self.dices_canvas[2].bind("<Button-1>", lambda: self.change_dice_dialog(2))
-        self.dices_canvas[3].bind("<Button-1>", lambda: self.change_dice_dialog(3))
-        self.dices_canvas[4].bind("<Button-1>", lambda: self.change_dice_dialog(4))
+        self.dices_canvas[0].bind("<Button-1>", lambda event: self.change_dice_dialog(0))
+        self.dices_canvas[1].bind("<Button-1>", lambda event: self.change_dice_dialog(1))
+        self.dices_canvas[2].bind("<Button-1>", lambda event: self.change_dice_dialog(2))
+        self.dices_canvas[3].bind("<Button-1>", lambda event: self.change_dice_dialog(3))
+        self.dices_canvas[4].bind("<Button-1>", lambda event: self.change_dice_dialog(4))
 
         # frm_deck layout widgets
         for idx, dice_canvas in enumerate(self.dices_canvas):
