@@ -11,7 +11,6 @@
 [comment]: <> (# Copyright \(c\) 2020 slavi010 pro@slavi.dev)
 
 # Random Dice Bot
-![Image](https://slavi.dev/nextcloud/index.php/s/ERAojSXKLewXn3f/preview)
 
 # WARNING
 **Due to updates, the bot is not working properly !! (more information :[#7](https://github.com/slavi010/random_dice_bot/issues/7))**
@@ -53,14 +52,18 @@ Donc vous devez utiliser soit :
     
 ### Lancement du programme
 1. Lancez le programme du bot. Une interface graphique devrait afficher, si ce n'est pas le cas, avez vous bien installé AHK ? L'avez-vous mis dans votre PATH et relancé votre console ? (Lancez le fichier src/main.py dans la racine du projet)
+
 ![Image interface graphique](https://slavi.dev/nc/index.php/s/JSmJ3jRbLibCdDt/preview)
+
 2. Le bot est déjà pré configuré pour un deck spécifique. Vous pouvez vous amuser a changer le comportement du bot via l'interface graphique, mais aucune modification ne sera sauvegardées. Vous pouvez aussi directement modifier le fichier src/main.py.
 1. Initier une partie coop sur Random Dice.
 3. Démarrer le bot
 2. Ne faite AUCUN autre clic !
 3. Retourner sur la fenêtre du jeu (vous pouvez utiliser sur Windows, alt+tab)
 4. Vous devez ensuite faire UN clic en haut a gauche de plateau et UN en bas à droite.
+
 ![Image board where click](https://slavi.dev/nc/index.php/s/N8NGeNmrFsMSQBG/preview)
+
 5. Le bot va ensuite démarrer.
 
 Une nouvelle fenêtre devrait apparaître.
