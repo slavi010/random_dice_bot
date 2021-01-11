@@ -56,15 +56,15 @@ Donc vous devez utiliser soit :
 ![Image interface graphique](https://slavi.dev/nc/index.php/s/JSmJ3jRbLibCdDt/preview)
 
 2. Le bot est déjà pré configuré pour un deck spécifique. Vous pouvez vous amuser a changer le comportement du bot via l'interface graphique, mais aucune modification ne sera sauvegardées. Vous pouvez aussi directement modifier le fichier src/main.py.
-1. Initier une partie coop sur Random Dice.
-3. Démarrer le bot
-2. Ne faite AUCUN autre clic !
-3. Retourner sur la fenêtre du jeu (vous pouvez utiliser sur Windows, alt+tab)
-4. Vous devez ensuite faire UN clic en haut a gauche de plateau et UN en bas à droite.
+3. Initier une partie coop sur Random Dice.
+4. Démarrer le bot
+5. Ne faite AUCUN autre clic !
+6. Retourner sur la fenêtre du jeu (vous pouvez utiliser sur Windows, alt+tab)
+7. Vous devez ensuite faire UN clic en haut a gauche de plateau et UN en bas à droite.
 
 ![Image board where click](https://slavi.dev/nc/index.php/s/N8NGeNmrFsMSQBG/preview)
 
-5. Le bot va ensuite démarrer.
+8. Le bot va ensuite démarrer.
 
 Une nouvelle fenêtre devrait apparaître.
 La grille en rouge devrait normalement être PARFAITEMENT aligné avec les cases du plateau.
