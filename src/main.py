@@ -12,7 +12,7 @@
 # Copyright (c) 2020 slavi010 pro@slavi.dev
 #
 
-
+import __future__
 import random
 from time import sleep
 
@@ -20,24 +20,22 @@ import tkinter as tk
 
 import cv2
 from pynput.mouse import Listener
+from pynput.keyboard import Controller, Listener as keyboardListener
 
 from src.model.DiceEnum import DiceColorEnum
 from src.model.FeaturePlateau import FeaturePlateau
 from src.model.Plateau import Plateau, grab_image
 
-from ahk import AHK
 
 from src.view.MainDialog import MainDialog, MergeDiceFeatureView, BuyDiceFeatureView, BuyUpgradeFeatureView, \
     AutoAdFeatureView
 
 if __name__ == '__main__':
-    # ahk is use for do click, mouse drag and auto ad
-    ahk = AHK()
-
-    main_dialog = MainDialog(tk.Tk(), ahk)
+    keyboard = Controller()
+    main_dialog = MainDialog(tk.Tk())
 
     # auto ad
-    main_dialog.add_feature(AutoAdFeatureView(main_dialog.frm_feature, ahk))
+    main_dialog.add_feature(AutoAdFeatureView(main_dialog.frm_feature))
 
     # buy dice
     main_dialog.add_feature(BuyDiceFeatureView(main_dialog.frm_feature))
@@ -152,7 +150,7 @@ if __name__ == '__main__':
                          for sub_feature_frm in main_dialog.show_dialog().sub_feature_frms]
 
     # the board / the bot
-    plateau = Plateau(ahk)
+    plateau = Plateau()
 
     # the bot spawn his first dices
     for i in range(10):
@@ -168,8 +166,7 @@ if __name__ == '__main__':
         # we iterate one time all features
         features.start_features(plateau)
 
-        # stop the bot with the Escape key
-        if ahk.key_state('Escape'):
-            break
+        # stop the bot with when escape key is pressed
+        # TODO
 
 print("BOT IS OFF")

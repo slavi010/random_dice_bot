@@ -18,7 +18,6 @@ from typing import Optional, Dict
 import cv2
 import numpy as np
 from PIL import ImageTk, Image
-from ahk import AHK
 
 from src.model.DiceEnum import DiceColorEnum
 from src.model.FeaturePlateau import merge_dice_feature, buy_upgrade_feature, buy_dice_feature, auto_ad_feature
@@ -30,9 +29,8 @@ from src.view.DialogConfFeature import DiceMergeFeatureConfDialog, BuyUpgradeFea
 class MainDialog:
     """The main Dialog, with this dialog, you can change the deck and the bot actions"""
 
-    def __init__(self, root, ahk: AHK):
+    def __init__(self, root):
         self.root = root
-        self.ahk = ahk
 
         # show this dialog
         self.show = False
@@ -89,7 +87,7 @@ class MainDialog:
         self.btn_add_buy_dice_feature['command'] = \
             lambda: self.add_feature(BuyDiceFeatureView(self.frm_feature))
         self.btn_add_auto_ad_feature['command'] = \
-            lambda: self.add_feature(AutoAdFeatureView(self.frm_feature, self.ahk))
+            lambda: self.add_feature(AutoAdFeatureView(self.frm_feature))
         self.btn_start['command'] = \
             lambda: self.set_show(False)
 
@@ -344,9 +342,8 @@ class BuyDiceFeatureView(AbstractFeatureView):
 class AutoAdFeatureView(AbstractFeatureView):
     """Auto ad"""
 
-    def __init__(self, root, ahk: AHK):
+    def __init__(self, root):
         super().__init__(root)
-        self.ahk = ahk
 
         # change name label
         self.lbl_name_feature['text'] = "Auto ad"
@@ -355,7 +352,7 @@ class AutoAdFeatureView(AbstractFeatureView):
         return self.frm
 
     def get_callback_feature(self):
-        return lambda plateau: auto_ad_feature(plateau, self.ahk)
+        return lambda plateau: auto_ad_feature(plateau)
 
 
 # root = tk.Tk()

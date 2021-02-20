@@ -18,7 +18,7 @@ from time import sleep
 from typing import Union
 
 import numpy as np
-from ahk import AHK
+from pynput.keyboard import Controller, Key
 
 from src.model.DiceEnum import DiceColorEnum
 from src.model.Plateau import Plateau, grab_image
@@ -270,8 +270,10 @@ def buy_dice_feature(plateau: Plateau):
     return False
 
 
-def auto_ad_feature(plateau, ahk: AHK):
+def auto_ad_feature(plateau):
     if plateau.is_end(image=grab_image(box=(0, 0, plateau.screen_size[0], plateau.screen_size[1]))):
+        keyboard = Controller()
+
         print("auto_pub_and_start")
         sleep(1)
         plateau.add_dice()
@@ -288,13 +290,18 @@ def auto_ad_feature(plateau, ahk: AHK):
                     grab_image(box=(0, 0, plateau.screen_size[0], plateau.screen_size[1]))):
                 print("attente fin de pub")
                 sleep(2)
-                script = "Send, {Escape}\n" + \
-                         "Send, {Ctrl down}\n" + \
-                         "Send, {Backspace}\n" + \
-                         "Send, {Ctrl up}"
-                ahk.run_script(script)
+                # Fonctionne ?
+                keyboard.press(Key.escape)
+                sleep(0.1)
+                keyboard.release(Key.escape)
+                sleep(1)
+                keyboard.press(Key.control)
+                keyboard.press(Key.backspace)
+                sleep(0.1)
+                keyboard.release(Key.backspace)
+                keyboard.release(Key.control)
                 sleep(2)
-            print("pub fini")
+            print("pub finie")
         sleep(3)
         print("start coop")
         plateau.start_coop()

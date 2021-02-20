@@ -44,11 +44,10 @@ def grab_points_dice():
     sleep(0.5)
     x_2, y_2, _, _ = get_next_click_mouse()
 
-    image = Plateau.grab_image()[y_1:y_2, x_1:x_2]
+    image = Plateau.grab_image((x_1, y_1, x_2, y_2))
 
-    # image = cv2.imread("../image/new_ui/empty_board.png")
+    # image = cv2.imread("../image/ne_ui/empty_board.png")
     # print(image is not None)
-
 
     # mask = cv2.inRange(cv2.cvtColor(image, cv2.COLOR_BGR2HSV), (0, 0, 229), (160, 4, 241))
     # mask = cv2.erode(mask, None, iterations=2)
@@ -56,6 +55,8 @@ def grab_points_dice():
     # image = cv2.bitwise_and(image, image, mask=mask)
 
     image[(image*255 < 42) | (image*255 > 81)] = 0
+
+
     ret, thresh = cv2.threshold(cv2.cvtColor(image.copy(),
                                              cv2.COLOR_RGB2GRAY),
                                 162,

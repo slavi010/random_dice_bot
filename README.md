@@ -28,30 +28,24 @@ Il détecte le type de dé et sont nombre de point.
 Une nouvelle interface graphique est disponible !
 
 ## Prérequis
-* Python 3 (testé avec 3.7)
-* AHK : https://www.autohotkey.com/download/
-    * Si après lancement de bot , il ne détecte pas AHK, pensez à l'ajouter dans la varible PATH de votre ordinateur.
+* Python 3 (testé avec 3.7 et 3.8)
 * Dépendances python
-    * Avec pip manuellement
-        * ```pip install pillow```
-        * ```pip install ahk```
-        * ```pip install opencv-python```
-        * ```pip install pynput```
-    * Avec pip requirements.txt
+    * /!\ Cette application utilise Tkinter
+    * Instalation des dépendances avec le fichier requirements.txt
         * ```pip install -r requirements.txt```
 
 *(Ou ```pip3``` en fonction de votre installation de python)
 
 ## Utilisation du bot
 ### Android sur PC
-Le bot fonctionne uniquement sur PC.
+Le bot fonctionne uniquement sur PC (testé sous Ubuntu 20.10).
 Donc vous devez utiliser soit :
 * Un émulateur de téléphone (android ex: [BluesStacks](https://www.bluestacks.com/))
-* Une prise de controlle de votre téléphone sur votre ordinateur 
-    (pour android, open source: [scrcpy](https://github.com/Genymobile/scrcpy))
+* Une prise de contrôle de votre téléphone sur votre ordinateur 
+    (pour android, open source : [scrcpy](https://github.com/Genymobile/scrcpy))
     
 ### Lancement du programme
-1. Lancez le programme du bot. Une interface graphique devrait afficher, si ce n'est pas le cas, avez vous bien installé AHK ? L'avez-vous mis dans votre PATH et relancé votre console ? (Lancez le fichier src/main.py dans la racine du projet)
+1. Lancez le programme du bot. Une interface graphique devrait afficher, si ce n'est pas le cas, avez-vous des problèmes de dépendances ? (Lancez le fichier src/main.py dans la racine du projet)
 
 ![Image interface graphique](https://slavi.dev/nc/index.php/s/JSmJ3jRbLibCdDt/preview)
 
@@ -77,7 +71,7 @@ Pour arrêter le programme, appuyer longuement sur la touche Echap.
 [#3](https://github.com/slavi010/random_dice_bot/issues/3)
 
 ### Skin de la carte
-Le skin de carte actuellement compatible pour lancer le bot est celui par défaut.
+Le skin de carte actuellement compatible pour lancer le bot est celui par défaut (version claire).
 [#2](https://github.com/slavi010/random_dice_bot/issues/2)
 
 ## Decks
