@@ -28,7 +28,6 @@ import pyautogui
 
 from pynput.mouse import Controller, Button
 
-
 from src.model.Dice import Dice
 from src.model.DiceEnum import DiceColorEnum, DiceEnum
 from src.model.Merge import Merge
@@ -53,18 +52,21 @@ class Plateau:
         self.screen_size = (1920, 1080)
 
         # btn = (x, y)
-        self.btn_coord_add_dice = (x_1 + int(width_dice * 1.85), y_2 + int(height_dice * 2.28))
+        self.btn_coord_add_dice = (x_1 + int(width_dice * 1.83), y_2 + int(height_dice * 2.281))
         self.btn_coord_buy_shop = []
         for i in range(5):
             self.btn_coord_buy_shop.append(
                 (x_1 - int(width_dice * 4 / 5) + i * int(width_dice * 1.43), y_2 + int(height_dice * 4.3)))
-        self.btn_coord_coop_mode = (x_2 + int(width_dice / 5), y_2 + int(height_dice * 2))
+        self.btn_coord_coop_mode = (x_2 + int(width_dice / 1.7), y_2 + int(height_dice * 2))
         self.btn_coord_coop_mode_pub = (x_2 + int(width_dice), y_2 + int(height_dice * 2))
         self.btn_coord_coop_mode_quick_match = (x_2, y_2 - int(height_dice))
 
         # check game end (color of the dice)
         image = grab_image()
         self.coord_end = (x_1 + int(width_dice * 8 / 5), y_1 - int(height_dice))
+
+        # moveMouse(x=self.btn_coord_coop_mode[0], y=self.btn_coord_coop_mode[1])
+        # sleep(100)
 
     def scan_many_time(self, nb_scan, time_between_two_scan_ms=10):
         occurence_dice = [[] for i in range(15)]  # [[(dice, occurence)]]
@@ -157,7 +159,7 @@ class Plateau:
     def do_merge(self, merge: Merge):
         moveMouse(x=merge.from_case.x, y=merge.from_case.y, duration=0.5)
         sleep(0.1)
-        moveMouse(x=merge.to_case.x, y=merge.to_case.y, duration=1, drag=Button.left)
+        moveMouse(x=merge.to_case.x, y=merge.to_case.y, duration=0.5, drag=Button.left)
 
         # on reposition la sourie en IDLE
         moveMouse(
@@ -251,7 +253,7 @@ class Plateau:
 
     def is_coop_ready(self, image):
         return same_color(image[self.btn_coord_coop_mode[1]][self.btn_coord_coop_mode[0]],
-                          (255, 213, 165), offset=2)
+                          (250, 250, 250), offset=10)
 
     def start_pub(self):
         moveMouse(x=self.btn_coord_coop_mode_pub[0], y=self.btn_coord_coop_mode_pub[1], duration=0.1, click=Button.left)
@@ -281,13 +283,24 @@ def grab_image(box=(0, 0, 1920, 1080)):
     return pil_to_cv2(pyautogui.screenshot())[box[1]:box[3], box[0]:box[2]]
 
 
-def moveMouse(x, y, absolute=True, duration=0.0, click: Button = None, press: Button = None, release: Button = None, drag: Button = None):
+def moveMouse(x, y, absolute=True, duration: float = 0.0, click: Button = None, press: Button = None,
+              release: Button = None, drag: Button = None):
     mouse = Controller()
 
     if drag is not None:
-        mouse.click(drag)
+        mouse.press(drag)
 
-    mouse.position = (x, y)
+    if drag is None or duration == 0:
+        mouse.position = (x, y)
+    else:
+        position_start = mouse.position
+        distance = abs(position_start[0] - x) + abs(position_start[1] - y)
+        nb_step = int(duration * 30)
+        duration_step = duration / nb_step
+        for i in range(nb_step):
+            mouse.position = (int(position_start[0] + (x-position_start[0]) * (i / nb_step)),
+                              int(position_start[1] + (y-position_start[1]) * (i / nb_step)))
+            sleep(duration_step)
     # absolute = absolute, duration = duration)
 
     # sleep(duration)

@@ -82,10 +82,10 @@ def grab_points_dice():
     # point_x2 = max_boundRect[0] + max_boundRect[2]*0.85
     # point_y2 = max_boundRect[1] + max_boundRect[3]*0.765
 
-    point_x1 = max_boundRect[0] + max_boundRect[2]*0.135
+    point_x1 = max_boundRect[0] + max_boundRect[2]*0.1355
     point_y1 = max_boundRect[1] + max_boundRect[3]*0.205
-    point_x2 = max_boundRect[0] + max_boundRect[2]*0.86
-    point_y2 = max_boundRect[1] + max_boundRect[3]*0.760
+    point_x2 = max_boundRect[0] + max_boundRect[2]*0.861
+    point_y2 = max_boundRect[1] + max_boundRect[3]*0.759
 
     # image = cv2.rectangle(image, (int(max_boundRect[0]), int(max_boundRect[1])),
     #                       (int(max_boundRect[0]+max_boundRect[2]), int(max_boundRect[1]+max_boundRect[3])), (0, 255, 0), 2)

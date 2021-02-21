@@ -35,7 +35,8 @@ if __name__ == '__main__':
     main_dialog = MainDialog(tk.Tk())
 
     # auto ad
-    main_dialog.add_feature(AutoAdFeatureView(main_dialog.frm_feature))
+    # TODO FIX for different screen height
+    # main_dialog.add_feature(AutoAdFeatureView(main_dialog.frm_feature))
 
     # buy dice
     main_dialog.add_feature(BuyDiceFeatureView(main_dialog.frm_feature))
@@ -165,6 +166,8 @@ if __name__ == '__main__':
 
         # we iterate one time all features
         features.start_features(plateau)
+
+        sleep(1)
 
         # stop the bot with when escape key is pressed
         # TODO

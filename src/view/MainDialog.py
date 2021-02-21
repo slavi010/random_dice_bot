@@ -119,6 +119,7 @@ class MainDialog:
         Open the SelectDiceDialog for change a dice
         """
         new = tk.Toplevel(self.root)
+        new.wait_visibility()
         new.grab_set()
         SelectDiceDialog(new, self, index_dice_deck)
 

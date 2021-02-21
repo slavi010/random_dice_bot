@@ -285,21 +285,21 @@ def auto_ad_feature(plateau):
             # on regarde la pub
             plateau.start_pub()
             print("start pub")
-            sleep(2)
+            sleep(30)
             while not plateau.is_coop_ready(
                     grab_image(box=(0, 0, plateau.screen_size[0], plateau.screen_size[1]))):
                 print("attente fin de pub")
                 sleep(2)
                 # Fonctionne ?
-                keyboard.press(Key.escape)
+                keyboard.press(Key.esc)
                 sleep(0.1)
-                keyboard.release(Key.escape)
+                keyboard.release(Key.esc)
                 sleep(1)
-                keyboard.press(Key.control)
+                keyboard.press(Key.ctrl)
                 keyboard.press(Key.backspace)
                 sleep(0.1)
                 keyboard.release(Key.backspace)
-                keyboard.release(Key.control)
+                keyboard.release(Key.ctrl)
                 sleep(2)
             print("pub finie")
         sleep(3)

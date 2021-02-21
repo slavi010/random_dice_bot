@@ -59,8 +59,8 @@ class Case:
 
     def is_joker_dice(self, image):
         color = image[self.y + int(self.height * 10 / 50)][self.x]
-        # print('joker color : ' + str(color))
-        return same_color_offset_rgb(color, (150, 232, 216), offset_rgb=(50, 15, 30))
+        print('joker color : ' + str(color))
+        return same_color_offset_rgb(color, (180, 232, 200), offset_rgb=(50, 50, 50))
 
     def is_mimic_dice(self, image):
         color = image[self.y + int(self.height * 10 / 50)][self.x]
