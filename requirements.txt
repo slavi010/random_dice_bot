@@ -2,7 +2,7 @@ Arrays==0.0.5
 EasyProcess==0.3
 entrypoint2==0.2.3
 evdev==1.4.0
-future==0.18.2
+future==0.18.3
 imutils==0.5.4
 jeepney==0.6.0
 Jinja2==2.11.3
